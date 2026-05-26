@@ -4,94 +4,226 @@ import { Link } from 'react-router-dom';
 const Footer = () => {
   return (
     <footer style={{
-      backgroundColor: 'var(--white)',
-      borderTop: 'var(--border-brutal)',
-      padding: '48px 0 24px 0',
+      backgroundColor: '#0A0A0A',
+      borderTop: '1px solid #1A1A1A',
       marginTop: 'auto',
-      fontSize: '14px',
-      color: 'var(--black)'
+      color: '#555',
     }}>
-      <div className="container" style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        gap: '32px'
-      }}>
-        <div style={{ flex: '1 1 300px' }}>
-          <h3 style={{
-            fontFamily: 'var(--display)',
-            fontSize: '24px',
-            color: 'var(--dark-black)',
-            marginBottom: '16px',
-            fontWeight: '900'
-          }}>CALEN DESIGN</h3>
-          <p style={{ maxWidth: '300px', lineHeight: '1.8', fontWeight: '500' }}>
-            Ropa de diseño independiente con una estética femenina, minimalista y atemporal. Hecho para durar.
-          </p>
-        </div>
+      {/* ── FOOTER MAIN ── */}
+      <div className="container" style={{ padding: '64px 24px 48px 24px' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '48px',
+        }}>
 
-        <div style={{ flex: '1 1 150px' }}>
-          <h4 style={{
-            fontFamily: 'var(--display)',
-            fontSize: '14px',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            color: 'var(--dark-black)',
-            marginBottom: '16px',
-            fontWeight: '900'
-          }}>EXPLORAR</h4>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px', fontWeight: '600' }}>
-            <li><Link to="/">INICIO</Link></li>
-            <li><Link to="/productos">CATÁLOGO</Link></li>
-            <li><Link to="/productos?category=remeras">REMERAS</Link></li>
-            <li><Link to="/productos?category=buzos">BUZOS</Link></li>
-            <li><Link to="/productos?category=vestidos">VESTIDOS</Link></li>
-          </ul>
-        </div>
+          {/* Brand */}
+          <div style={{ gridColumn: 'span 1' }}>
+            <h3 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '20px',
+              color: '#FFFFFF',
+              marginBottom: '4px',
+              fontWeight: 900,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+            }}>
+              CALEN<span style={{ color: '#FF2D2D' }}>·</span>DESIGN
+            </h3>
+            <p style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.2em',
+              color: '#333',
+              textTransform: 'uppercase',
+              marginBottom: '24px',
+            }}>
+              COL. 01 — 2026
+            </p>
+            <p style={{
+              fontSize: '13px',
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 400,
+              color: '#555',
+              lineHeight: 1.8,
+              maxWidth: '280px',
+            }}>
+              Diseño independiente con una estética atemporal. Hecho para durar.
+            </p>
+          </div>
 
-        <div style={{ flex: '1 1 150px' }}>
-          <h4 style={{
-            fontFamily: 'var(--display)',
-            fontSize: '14px',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            color: 'var(--dark-black)',
-            marginBottom: '16px',
-            fontWeight: '900'
-          }}>SOPORTE</h4>
-          <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '8px', fontWeight: '600' }}>
-            <li><Link to="/mi-cuenta">MI CUENTA</Link></li>
-            <li><a href="#envios">POLÍTICAS DE ENVÍO</a></li>
-            <li><a href="#cambios">CAMBIOS Y DEVOLUCIONES</a></li>
-          </ul>
-        </div>
+          {/* Explorar */}
+          <div>
+            <h4 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.2em',
+              color: '#FFFFFF',
+              marginBottom: '20px',
+              fontWeight: 900,
+            }}>
+              EXPLORAR
+            </h4>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {[
+                { to: '/',                           label: 'INICIO'    },
+                { to: '/productos',                  label: 'CATÁLOGO'  },
+                { to: '/productos?category=remeras', label: 'REMERAS'   },
+                { to: '/productos?category=buzos',   label: 'BUZOS'     },
+                { to: '/productos?category=vestidos',label: 'VESTIDOS'  },
+              ].map(({ to, label }) => (
+                <li key={to}>
+                  <Link
+                    to={to}
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      letterSpacing: '0.08em',
+                      color: '#555',
+                      textTransform: 'uppercase',
+                      transition: 'color 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#555'; }}
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        <div style={{ flex: '1 1 200px' }}>
-          <h4 style={{
-            fontFamily: 'var(--display)',
-            fontSize: '14px',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            color: 'var(--dark-black)',
-            marginBottom: '16px',
-            fontWeight: '900'
-          }}>CONTACTO</h4>
-          <p style={{ marginBottom: '8px', fontWeight: '500' }}>Showroom en Palermo, CABA</p>
-          <p style={{ marginBottom: '8px', fontWeight: '500' }}>info@calendesign.com</p>
-          <p style={{ fontWeight: '500' }}>+54 9 11 6620 3840</p>
+          {/* Soporte */}
+          <div>
+            <h4 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.2em',
+              color: '#FFFFFF',
+              marginBottom: '20px',
+              fontWeight: 900,
+            }}>
+              SOPORTE
+            </h4>
+            <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {[
+                { to: '/mi-cuenta',     label: 'MI CUENTA'           },
+                { href: '#envios',      label: 'POLÍTICAS DE ENVÍO'  },
+                { href: '#cambios',     label: 'CAMBIOS Y DEVOLUCIONES' },
+              ].map(({ to, href, label }) => (
+                <li key={label}>
+                  {to ? (
+                    <Link
+                      to={to}
+                      style={{
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        color: '#555',
+                        textTransform: 'uppercase',
+                        transition: 'color 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = '#555'; }}
+                    >
+                      {label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={href}
+                      style={{
+                        fontFamily: "'Space Grotesk', sans-serif",
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        letterSpacing: '0.08em',
+                        color: '#555',
+                        textTransform: 'uppercase',
+                        transition: 'color 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.color = '#555'; }}
+                    >
+                      {label}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contacto */}
+          <div>
+            <h4 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '11px',
+              textTransform: 'uppercase',
+              letterSpacing: '0.2em',
+              color: '#FFFFFF',
+              marginBottom: '20px',
+              fontWeight: 900,
+            }}>
+              CONTACTO
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {[
+                'Showroom en Palermo, CABA',
+                'info@calendesign.com',
+                '+54 9 11 6620 3840',
+              ].map(text => (
+                <p key={text} style={{
+                  fontSize: '12px',
+                  fontFamily: "'Inter', sans-serif",
+                  fontWeight: 400,
+                  color: '#555',
+                  lineHeight: 1.6,
+                }}>
+                  {text}
+                </p>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="container" style={{
-        marginTop: '40px',
-        paddingTop: '24px',
-        borderTop: 'var(--border-brutal-sm)',
-        textAlign: 'center',
-        fontSize: '12px',
-        fontFamily: 'var(--display)',
-        fontWeight: '800'
+      {/* ── FOOTER BOTTOM BAR ── */}
+      <div style={{
+        borderTop: '1px solid #111',
+        padding: '16px 0',
       }}>
-        <p>&copy; {new Date().getFullYear()} CALEN DESIGN. Todos los derechos reservados. DTS&Dog Agency.</p>
+        <div className="container" style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '8px',
+          padding: '0 24px',
+        }}>
+          <p style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.12em',
+            color: '#333',
+            textTransform: 'uppercase',
+          }}>
+            © {new Date().getFullYear()} CALEN DESIGN
+          </p>
+          <p style={{
+            fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            color: '#333',
+            textTransform: 'uppercase',
+          }}>
+            DTS<span style={{ color: '#FF2D2D' }}>·</span>DOG AGENCY
+          </p>
+        </div>
       </div>
     </footer>
   );

@@ -8,26 +8,15 @@ const Catalog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { products, categories, fetchProducts, fetchCategories, loading } = useProducts();
 
-  // Filtros locales
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category'));
   const [selectedSize, setSelectedSize] = useState(searchParams.get('size'));
   const [selectedColor, setSelectedColor] = useState(searchParams.get('color'));
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  useEffect(() => { fetchCategories(); }, []);
 
-  // Recargar productos ante cualquier cambio de filtro
   useEffect(() => {
-    const filters = {
-      category: selectedCategory,
-      size: selectedSize,
-      color: selectedColor,
-      active: true
-    };
+    const filters = { category: selectedCategory, size: selectedSize, color: selectedColor, active: true };
     fetchProducts(filters);
-
-    // Sincronizar parámetros de búsqueda en la URL
     const params = {};
     if (selectedCategory) params.category = selectedCategory;
     if (selectedSize) params.size = selectedSize;
@@ -35,7 +24,6 @@ const Catalog = () => {
     setSearchParams(params);
   }, [selectedCategory, selectedSize, selectedColor]);
 
-  // Si cambia la URL externamente, actualizar estados de filtros
   useEffect(() => {
     setSelectedCategory(searchParams.get('category'));
     setSelectedSize(searchParams.get('size'));
@@ -49,88 +37,148 @@ const Catalog = () => {
   };
 
   return (
-    <div className="container" style={{ padding: '60px 24px 100px 24px' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '48px', fontFamily: 'var(--display)', fontSize: '56px', fontWeight: '900', textTransform: 'uppercase' }}>
-        Nuestras Prendas
-      </h1>
-
+    <div style={{ backgroundColor: '#0A0A0A', minHeight: '100vh' }}>
+      {/* ── HEADER EDITORIAL ── */}
       <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '40px',
-        alignItems: 'flex-start'
+        borderBottom: '1px solid #1A1A1A',
+        padding: '60px 0 40px 0',
       }}>
-        {/* Panel lateral de filtros */}
-        <aside style={{
-          flex: '1 1 260px',
-          maxWidth: '320px',
-          width: '100%',
-          position: 'sticky',
-          top: '120px'
-        }}>
-          <Filters
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-            selectedSize={selectedSize}
-            onSelectSize={setSelectedSize}
-            selectedColor={selectedColor}
-            onSelectColor={setSelectedColor}
-            onClearFilters={handleClearFilters}
-          />
-        </aside>
-
-        {/* Grilla de productos */}
-        <main style={{
-          flex: '3 1 600px',
-          width: '100%'
-        }}>
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: '64px 0', fontFamily: 'var(--display)', fontWeight: '800', fontSize: '18px' }}>
-              CARGANDO CATÁLOGO DE PRENDAS...
-            </div>
-          ) : (
-            <>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                gap: '40px'
+        <div className="container">
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+            <div>
+              <span style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '0.25em',
+                color: '#FF2D2D',
+                textTransform: 'uppercase',
+                display: 'block',
+                marginBottom: '12px',
               }}>
-                {products.map((product, idx) => (
-                  <div 
-                    key={product.id}
-                    style={{
-                      transform: idx % 2 === 0 ? 'translateY(12px)' : 'none',
-                      marginTop: idx % 2 !== 0 ? '12px' : '0px'
-                    }}
-                  >
-                    <ProductCard product={product} />
-                  </div>
-                ))}
-              </div>
-
-              {products.length === 0 && (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '80px 24px',
-                  color: 'var(--black)',
-                  backgroundColor: 'var(--primary-pink)',
-                  borderRadius: '0px',
-                  border: 'var(--border-brutal)',
-                  boxShadow: 'var(--shadow-brutal)',
-                  width: '100%'
+                — COLECCIÓN 2026
+              </span>
+              <h1 style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: 'clamp(48px, 8vw, 96px)',
+                fontWeight: 900,
+                textTransform: 'uppercase',
+                letterSpacing: '-0.01em',
+                color: '#FFFFFF',
+                lineHeight: 0.95,
+              }}>
+                NUESTRAS<br />PRENDAS
+              </h1>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <span style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: '10px',
+                fontWeight: 700,
+                letterSpacing: '0.2em',
+                color: '#333',
+                textTransform: 'uppercase',
+                display: 'block',
+              }}>
+                {products.length} PRENDAS
+              </span>
+              {(selectedCategory || selectedSize || selectedColor) && (
+                <span style={{
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  letterSpacing: '0.15em',
+                  color: '#FF2D2D',
+                  textTransform: 'uppercase',
+                  marginTop: '4px',
+                  display: 'block',
                 }}>
-                  <p style={{ fontSize: '20px', fontWeight: '900', fontFamily: 'var(--display)', textTransform: 'uppercase', marginBottom: '16px' }}>
-                    No se encontraron prendas que coincidan.
-                  </p>
-                  <button onClick={handleClearFilters} className="brutal-btn brutal-btn-black">
-                    VER TODAS LAS PRENDAS
-                  </button>
-                </div>
+                  FILTROS ACTIVOS
+                </span>
               )}
-            </>
-          )}
-        </main>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── LAYOUT: FILTROS + GRID ── */}
+      <div className="container" style={{ padding: '40px 24px 120px 24px' }}>
+        <div style={{ display: 'flex', gap: '48px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+
+          {/* Filtros */}
+          <aside style={{
+            flex: '0 0 240px',
+            position: 'sticky',
+            top: '100px',
+          }}>
+            <Filters
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory}
+              selectedSize={selectedSize}
+              onSelectSize={setSelectedSize}
+              selectedColor={selectedColor}
+              onSelectColor={setSelectedColor}
+              onClearFilters={handleClearFilters}
+            />
+          </aside>
+
+          {/* Grid de productos */}
+          <main style={{ flex: '1 1 600px', minWidth: 0 }}>
+            {loading ? (
+              <div style={{
+                textAlign: 'center',
+                padding: '80px 0',
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontWeight: 900,
+                fontSize: '13px',
+                letterSpacing: '0.18em',
+                color: '#333',
+                textTransform: 'uppercase',
+              }}>
+                CARGANDO CATÁLOGO...
+              </div>
+            ) : (
+              <>
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+                  gap: '1px',
+                  backgroundColor: '#1A1A1A',
+                  outline: '1px solid #1A1A1A',
+                }}>
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+
+                {products.length === 0 && (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '80px 24px',
+                    border: '1px solid #1A1A1A',
+                    backgroundColor: '#0A0A0A',
+                  }}>
+                    <p style={{
+                      fontSize: '14px',
+                      fontWeight: 900,
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.12em',
+                      marginBottom: '24px',
+                      color: '#555',
+                    }}>
+                      NO SE ENCONTRARON PRENDAS
+                    </p>
+                    <button onClick={handleClearFilters} className="brutal-btn">
+                      VER TODAS
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const WhatsAppFloat = () => {
-  const phoneNumber = '5491166203840'; // Número placeholder de Cande
+  const phoneNumber = '5491166203840';
   const message = 'Hola! Vengo de la web de Calen Design y quería hacer una consulta.';
   const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <a
@@ -14,8 +15,8 @@ const WhatsAppFloat = () => {
         position: 'fixed',
         bottom: '24px',
         right: '24px',
-        backgroundColor: 'var(--primary-pink)',
-        color: '#000000',
+        backgroundColor: isHovered ? 'var(--accent-lima)' : 'var(--bg-card)',
+        color: isHovered ? 'var(--black)' : 'var(--accent-lima)',
         width: '56px',
         height: '56px',
         borderRadius: '0px',
@@ -23,18 +24,13 @@ const WhatsAppFloat = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: 'var(--shadow-brutal)',
+        boxShadow: isHovered ? '2px 2px 0px var(--white)' : 'none',
+        transform: isHovered ? 'translate(-2px, -2px)' : 'none',
         zIndex: 999,
         transition: 'var(--transition)',
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translate(-2px, -2px)';
-        e.currentTarget.style.boxShadow = 'var(--shadow-brutal-hover)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'none';
-        e.currentTarget.style.boxShadow = 'var(--shadow-brutal)';
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       aria-label="Contactar por WhatsApp"
     >
       <svg

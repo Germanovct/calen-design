@@ -1,36 +1,85 @@
+/* ============================================================
+   CALEN DESIGN — DARK BRUTALISM EDITORIAL DESIGN SYSTEM
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700;800;900&family=Inter:wght@400;500;600&display=swap');
+
 :root {
-  --primary-pink: #FF3CAC;
-  --primary-yellow: #FFE600;
-  --white: #FFFFFF;
-  --black: #000000;
-  --bg-light: #FFFFFF;
-  --dark-black: #000000;
-  --gray-medium: #666666;
-  --gray-light: #000000; /* Brutalist prefers crisp black borders, so light borders are also black or dark */
-  --border-brutal: 4px solid #000000;
-  --border-brutal-sm: 3px solid #000000;
-  --shadow-brutal: 4px 4px 0px #000000;
-  --shadow-brutal-lg: 6px 6px 0px #000000;
-  --shadow-brutal-hover: 7px 7px 0px #000000;
-  --sans: 'Inter', sans-serif;
+  /* Paleta */
+  --base-dark:    #0A0A0A;
+  --bg-card:      #1A1A1A;
+  --white:        #FFFFFF;
+  --black:        #000000;
+  --text-main:    #FFFFFF;
+  --accent-red:   #FF2D2D;
+  --accent-lima:  #C8FF00;
+  --gray-text:    #888888;
+  --gray-mid:     #333333;
+
+  /* Borders — 1px blanco, sin grosor brutal */
+  --border-brutal:    1px solid #FFFFFF;
+  --border-brutal-sm: 1px solid #FFFFFF;
+  --border-red:       1px solid var(--accent-red);
+  --border-lime:      1px solid var(--accent-lima);
+
+  /* Shadows — mínimas, solo offset */
+  --shadow-brutal:       2px 2px 0px #FFFFFF;
+  --shadow-brutal-lg:    3px 3px 0px #FFFFFF;
+  --shadow-brutal-hover: 4px 4px 0px var(--accent-red);
+  --shadow-red:          3px 3px 0px var(--accent-red);
+
+  /* Tipografía */
+  --sans:    'Inter', sans-serif;
   --display: 'Space Grotesk', sans-serif;
+
+  /* Base */
   --border-radius: 0px;
-  --transition: all 0.1s linear;
+  --transition:    all 0.18s ease-in-out;
+
+  /* Scrollbar */
+  --scrollbar-thumb: #2A2A2A;
+  --scrollbar-track: #0A0A0A;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
 }
 
-* {
+/* ── RESET ── */
+*, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── SCROLLBAR WEBKIT ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-left: 1px solid #1A1A1A;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border: 1px solid #3A3A3A;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-red);
+}
+
+/* ── BODY ── */
 body {
   font-family: var(--sans);
-  background-color: var(--bg-light);
-  color: var(--dark-black);
+  background-color: var(--base-dark);
+  color: var(--text-main);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 #root {
@@ -39,12 +88,14 @@ body {
   min-height: 100vh;
 }
 
+/* ── LINKS ── */
 a {
   color: inherit;
   text-decoration: none;
   transition: var(--transition);
 }
 
+/* ── FORM ELEMENTS ── */
 button, input, select, textarea {
   font-family: inherit;
   font-size: inherit;
@@ -57,31 +108,37 @@ button {
   transition: var(--transition);
 }
 
+/* ── HEADINGS — EDITORIAL BOLD ── */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--display);
   font-weight: 900;
-  color: var(--dark-black);
+  color: var(--white);
   text-transform: uppercase;
+  letter-spacing: 0.06em;
+  line-height: 1.05;
 }
 
-/* Scrollbar Customization */
-::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-::-webkit-scrollbar-track {
-  background: var(--white);
-  border-left: var(--border-brutal-sm);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--primary-yellow);
-  border: 2px solid var(--black);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-pink);
+/* ── EDITORIAL SUBTITLE — contraste delgado/italic ── */
+.editorial-sub {
+  font-family: var(--display);
+  font-weight: 300;
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--gray-text);
 }
 
-/* Utilities */
+/* ── EDITORIAL LABEL — coordenadas, referencias de colección ── */
+.editorial-label {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--gray-text);
+}
+
+/* ── CONTAINER ── */
 .container {
   width: 100%;
   max-width: 1200px;
@@ -89,20 +146,21 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0 24px;
 }
 
-/* Brutal Buttons */
+/* ── BRUTAL BUTTONS ── */
 .brutal-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 28px;
+  padding: 14px 32px;
   font-family: var(--display);
-  font-weight: 800;
+  font-weight: 900;
+  font-size: 13px;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
   color: var(--black);
-  background-color: var(--primary-yellow);
+  background-color: var(--white);
   border: var(--border-brutal);
-  box-shadow: var(--shadow-brutal);
-  border-radius: var(--border-radius);
+  border-radius: 0;
   cursor: pointer;
   transition: var(--transition);
   text-align: center;
@@ -110,166 +168,278 @@ h1, h2, h3, h4, h5, h6 {
 .brutal-btn:hover:not(:disabled) {
   transform: translate(-2px, -2px);
   box-shadow: var(--shadow-brutal-hover);
-}
-.brutal-btn:active:not(:disabled) {
-  transform: translate(0px, 0px);
-  box-shadow: var(--shadow-brutal);
-}
-.brutal-btn:disabled {
-  background-color: #E6E6E6;
-  border-color: #666666;
-  color: #666666;
-  box-shadow: 2px 2px 0px #666666;
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.brutal-btn-pink {
-  background-color: var(--primary-pink);
-}
-.brutal-btn-black {
-  background-color: var(--black);
+  background-color: var(--accent-red);
   color: var(--white);
 }
+.brutal-btn:active:not(:disabled) {
+  transform: translate(0, 0);
+  box-shadow: none;
+}
+.brutal-btn:disabled {
+  background-color: #222;
+  border-color: #444;
+  color: #555;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
 
-/* Legacy mappings for backward compatibility if needed */
+/* Variante oscura — fondo oscuro, texto blanco */
+.brutal-btn-black {
+  background-color: var(--base-dark);
+  color: var(--white);
+  border: var(--border-brutal);
+}
+.brutal-btn-black:hover:not(:disabled) {
+  background-color: var(--white);
+  color: var(--black);
+  box-shadow: var(--shadow-brutal-lg);
+}
+
+/* Variante roja */
+.brutal-btn-red {
+  background-color: var(--accent-red);
+  color: var(--white);
+  border: var(--border-red);
+}
+.brutal-btn-red:hover:not(:disabled) {
+  background-color: var(--white);
+  color: var(--black);
+  box-shadow: var(--shadow-red);
+}
+
+/* Variante lima — solo para detalles puntuales */
+.brutal-btn-lime {
+  background-color: var(--accent-lima);
+  color: var(--black);
+  border: var(--border-lime);
+}
+.brutal-btn-lime:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0px var(--accent-lima);
+}
+
+/* Legacy aliases — same spec as brutal-btn */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 28px;
+  padding: 14px 32px;
   font-family: var(--display);
-  font-weight: 800;
+  font-weight: 900;
+  font-size: 13px;
   text-transform: uppercase;
-  color: var(--white);
-  background-color: var(--black);
+  letter-spacing: 0.1em;
+  color: var(--black);
+  background-color: var(--white);
   border: var(--border-brutal);
-  box-shadow: var(--shadow-brutal);
-  border-radius: var(--border-radius);
+  border-radius: 0;
   cursor: pointer;
   transition: var(--transition);
-  text-align: center;
 }
 .btn-primary:hover:not(:disabled) {
   transform: translate(-2px, -2px);
   box-shadow: var(--shadow-brutal-hover);
-  background-color: var(--primary-pink);
-  color: var(--black);
+  background-color: var(--accent-red);
+  color: var(--white);
 }
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 28px;
-  font-family: var(--display);
-  font-weight: 800;
-  text-transform: uppercase;
-  color: var(--black);
-  background-color: var(--primary-yellow);
-  border: var(--border-brutal);
-  box-shadow: var(--shadow-brutal);
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  transition: var(--transition);
-  text-align: center;
-}
-.btn-secondary:hover:not(:disabled) {
-  transform: translate(-2px, -2px);
-  box-shadow: var(--shadow-brutal-hover);
-  background-color: var(--primary-pink);
-}
-
 .btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 12px 28px;
+  padding: 14px 32px;
   font-family: var(--display);
-  font-weight: 800;
+  font-weight: 900;
+  font-size: 13px;
   text-transform: uppercase;
-  color: var(--black);
-  background-color: var(--white);
+  letter-spacing: 0.1em;
+  color: var(--white);
+  background-color: var(--base-dark);
   border: var(--border-brutal);
-  box-shadow: var(--shadow-brutal);
-  border-radius: var(--border-radius);
+  border-radius: 0;
   cursor: pointer;
   transition: var(--transition);
-  text-align: center;
 }
 .btn-outline:hover:not(:disabled) {
+  background-color: var(--white);
+  color: var(--black);
+  box-shadow: var(--shadow-brutal-lg);
+}
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+  font-family: var(--display);
+  font-weight: 900;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--black);
+  background-color: var(--accent-lima);
+  border: var(--border-lime);
+  border-radius: 0;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-secondary:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: var(--shadow-brutal-hover);
-  background-color: var(--primary-yellow);
+  box-shadow: 3px 3px 0px var(--accent-lima);
 }
 
-/* Brutal Cards */
+/* ── CARDS ── */
 .brutal-card {
-  background-color: var(--white);
+  background-color: var(--bg-card);
   border: var(--border-brutal);
-  box-shadow: var(--shadow-brutal);
-  border-radius: var(--border-radius);
+  border-radius: 0;
   transition: var(--transition);
   padding: 24px;
 }
 .brutal-card-hover:hover {
-  transform: translate(-3px, -3px);
-  box-shadow: var(--shadow-brutal-hover);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-brutal-lg);
 }
 
-/* Brutal Inputs */
+/* ── INPUTS ── */
 .brutal-input {
   width: 100%;
   padding: 12px 16px;
   font-family: var(--sans);
   font-weight: 500;
   border: var(--border-brutal);
-  border-radius: var(--border-radius);
-  background-color: var(--white);
-  color: var(--black);
+  border-radius: 0;
+  background-color: var(--bg-card);
+  color: var(--white);
   outline: none;
   transition: var(--transition);
 }
+.brutal-input::placeholder {
+  color: #555;
+}
 .brutal-input:focus {
-  background-color: var(--primary-yellow);
-  box-shadow: var(--shadow-brutal);
+  border-color: var(--accent-red);
+  box-shadow: 2px 2px 0px var(--accent-red);
 }
 
-/* Badges */
+/* ── BADGES ── */
 .badge {
   display: inline-block;
-  padding: 6px 12px;
+  padding: 5px 12px;
   font-family: var(--display);
   font-size: 11px;
   font-weight: 900;
   text-transform: uppercase;
-  border: 2px solid #000000;
-  box-shadow: 2px 2px 0px #000000;
-  letter-spacing: 0.5px;
-  border-radius: 0px;
+  border: 1px solid var(--white);
+  letter-spacing: 0.08em;
+  border-radius: 0;
+  background-color: var(--base-dark);
 }
+.badge-pending   { border-color: var(--accent-lima); color: var(--accent-lima); }
+.badge-approved  { border-color: var(--accent-red);  color: var(--accent-red);  }
+.badge-shipped   { border-color: var(--white);       color: var(--white);       }
+.badge-delivered { border-color: var(--gray-text);   color: var(--gray-text);   }
+.badge-cancelled { border-color: #555;               color: #555;               }
+.badge-admin     { border-color: var(--accent-red);  color: var(--accent-red);  }
+.badge-customer  { border-color: var(--white);       color: var(--white);       }
 
-.badge-pending { background-color: var(--primary-yellow); color: var(--black); }
-.badge-approved { background-color: var(--primary-pink); color: var(--black); }
-.badge-shipped { background-color: #25D366; color: var(--white); }
-.badge-delivered { background-color: #FFFFFF; color: var(--black); }
-.badge-cancelled { background-color: #CCCCCC; color: var(--black); }
-.badge-admin { background-color: var(--primary-pink); color: var(--black); }
-.badge-customer { background-color: var(--white); color: var(--black); }
-
+/* ── SECTION TITLE — editorial grande ── */
 .section-title {
   font-family: var(--display);
-  font-size: 44px;
+  font-size: clamp(32px, 5vw, 52px);
   font-weight: 900;
-  text-align: center;
+  text-align: left;
   margin-bottom: 48px;
-  position: relative;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--white);
+  position: relative;
+}
+.section-title::after {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background-color: var(--accent-red);
+  margin-top: 12px;
 }
 
-/* Grid helper */
+/* ── GRILLA ASIMÉTRICA ── */
 .brutal-grid-irregular {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 32px;
+  gap: 2px;
 }
+
+/* ── PRODUCT CARD IMAGE — grayscale → color on hover ── */
+.product-card-img {
+  filter: grayscale(100%);
+  transition: filter 0.35s ease-in-out, transform 0.35s ease-in-out;
+}
+.product-card:hover .product-card-img {
+  filter: grayscale(0%);
+  transform: scale(1.03);
+}
+
+/* ── NAV LINKS EDITORIALES ── */
+.nav-link {
+  font-family: var(--display);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--white);
+  position: relative;
+  padding: 4px 0;
+  transition: var(--transition);
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--accent-red);
+  transition: width 0.2s ease;
+}
+.nav-link:hover { color: var(--white); }
+.nav-link:hover::after { width: 100%; }
+
+/* ── LÍNEA DECORATIVA EDITORIAL ── */
+.editorial-rule {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background-color: #222;
+  margin: 32px 0;
+}
+
+/* ── OVERLAY OSCURO para imágenes ── */
+.img-overlay-dark {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(10, 10, 10, 0.2) 0%,
+    rgba(10, 10, 10, 0.6) 100%
+  );
+  z-index: 1;
+}
+
+/* ── NÚMERO DE PÁGINA editorial ── */
+.page-number {
+  font-family: var(--display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--gray-text);
+  text-transform: uppercase;
+}
+
+/* ── UTILITY: texto rojo ── */
+.text-red   { color: var(--accent-red); }
+.text-lime  { color: var(--accent-lima); }
+.text-gray  { color: var(--gray-text); }
+.text-white { color: var(--white); }
+
+/* ── LEGACY FALLBACKS — eliminar referencias a colores viejos ── */
+/* Ningún var(--primary-yellow) ni var(--primary-pink) debe usarse */

@@ -2,7 +2,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
-  // Obtener todos los talles disponibles para este producto
   const availableSizes = Array.from(new Set(
     product.variants
       ?.filter(v => v.stock > 0)
@@ -10,128 +9,165 @@ const ProductCard = ({ product }) => {
       .filter(Boolean)
   ));
 
-  // Imagen por defecto si no tiene ninguna cargada
-  const defaultImage = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800';
+  const defaultImage = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop';
   const imageUrl = product.images && product.images.length > 0 ? product.images[0] : defaultImage;
 
   return (
-    <div style={{
-      backgroundColor: 'var(--white)',
-      borderRadius: '0px',
-      border: 'var(--border-brutal)',
-      overflow: 'hidden',
-      display: 'flex',
-      flexDirection: 'column',
-      height: '100%',
-      transition: 'var(--transition)',
-      position: 'relative',
-      boxShadow: 'var(--shadow-brutal)'
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'translate(-3px, -3px)';
-      e.currentTarget.style.boxShadow = 'var(--shadow-brutal-hover)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'none';
-      e.currentTarget.style.boxShadow = 'var(--shadow-brutal)';
-    }}
+    <div
+      className="product-card"
+      style={{
+        backgroundColor: '#1A1A1A',
+        border: 'none',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+        transition: 'all 0.2s ease-in-out',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.zIndex = '2';
+        e.currentTarget.style.outline = '1px solid #FFFFFF';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.zIndex = '1';
+        e.currentTarget.style.outline = 'none';
+      }}
     >
-      <Link to={`/productos/${product.id}`} style={{ display: 'block', position: 'relative', overflow: 'hidden', borderBottom: 'var(--border-brutal-sm)' }}>
+      {/* Imagen — grayscale → color en hover */}
+      <Link
+        to={`/productos/${product.id}`}
+        style={{
+          display: 'block',
+          position: 'relative',
+          overflow: 'hidden',
+          backgroundColor: '#111111',
+        }}
+      >
         <img
           src={imageUrl}
           alt={product.name}
+          className="product-card-img"
           style={{
             width: '100%',
-            aspectRatio: '1 / 1',
+            aspectRatio: '3 / 4',
             objectFit: 'cover',
-            transition: 'var(--transition)'
+            display: 'block',
           }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         />
+
+        {/* Overlay sutil */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'linear-gradient(to top, rgba(10,10,10,0.6) 0%, transparent 50%)',
+          zIndex: 1,
+          pointerEvents: 'none',
+        }} />
+
+        {/* Número editorial */}
+        <span style={{
+          position: 'absolute',
+          top: '12px',
+          left: '12px',
+          zIndex: 2,
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: '10px',
+          fontWeight: 700,
+          letterSpacing: '0.2em',
+          color: 'rgba(255,255,255,0.4)',
+        }}>
+          —
+        </span>
+
         {!product.active && (
-          <div className="badge" style={{
+          <div style={{
             position: 'absolute',
             top: '12px',
             right: '12px',
-            backgroundColor: '#E6E6E6',
-            color: 'var(--black)',
+            zIndex: 3,
+            backgroundColor: '#0A0A0A',
+            color: '#FF2D2D',
             fontSize: '10px',
             padding: '4px 8px',
-            fontWeight: '900',
+            fontWeight: 900,
             textTransform: 'uppercase',
-            border: '2px solid var(--black)',
-            boxShadow: '2px 2px 0px #000000'
+            fontFamily: "'Space Grotesk', sans-serif",
+            border: '1px solid #FF2D2D',
+            letterSpacing: '0.1em',
           }}>
             INACTIVO
           </div>
         )}
       </Link>
 
+      {/* Info del producto */}
       <div style={{
         padding: '16px',
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 1,
-        backgroundColor: '#FFFFFF'
+        borderTop: '1px solid #222',
       }}>
         <h3 style={{
-          fontSize: '20px',
-          fontWeight: '900',
-          marginBottom: '8px',
-          fontFamily: 'var(--display)',
-          color: 'var(--dark-black)'
+          fontSize: '14px',
+          fontWeight: 900,
+          marginBottom: '6px',
+          fontFamily: "'Space Grotesk', sans-serif",
+          textTransform: 'uppercase',
+          letterSpacing: '0.06em',
+          color: '#FFFFFF',
+          lineHeight: 1.2,
         }}>
-          <Link to={`/productos/${product.id}`} style={{ color: 'var(--black)' }}>{product.name}</Link>
+          <Link to={`/productos/${product.id}`} style={{ color: '#FFFFFF' }}>
+            {product.name}
+          </Link>
         </h3>
-        
+
         <p style={{
-          fontSize: '20px',
-          fontWeight: '900',
-          fontFamily: 'var(--display)',
-          color: 'var(--dark-black)',
-          marginBottom: '12px'
+          fontSize: '18px',
+          fontWeight: 900,
+          fontFamily: "'Space Grotesk', sans-serif",
+          color: '#FF2D2D',
+          marginBottom: '14px',
+          letterSpacing: '0.02em',
         }}>
           ${parseFloat(product.price).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </p>
 
+        {/* Talles */}
         {availableSizes.length > 0 ? (
-          <div style={{ marginTop: 'auto' }}>
-            <span style={{ fontSize: '11px', fontWeight: '800', fontFamily: 'var(--display)', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>
-              TALLES DISPONIBLES
-            </span>
-            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-              {availableSizes.map(size => (
-                <span 
-                  key={size} 
-                  style={{
-                    fontSize: '11px',
-                    padding: '4px 8px',
-                    border: '2px solid var(--black)',
-                    borderRadius: '0px',
-                    backgroundColor: 'var(--primary-yellow)',
-                    color: 'var(--dark-black)',
-                    fontWeight: '900',
-                    fontFamily: 'var(--display)'
-                  }}
-                >
-                  {size}
-                </span>
-              ))}
-            </div>
+          <div style={{ marginTop: 'auto', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            {availableSizes.map(size => (
+              <span
+                key={size}
+                style={{
+                  fontSize: '10px',
+                  padding: '3px 7px',
+                  border: '1px solid #333',
+                  backgroundColor: 'transparent',
+                  color: '#666',
+                  fontWeight: 700,
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                {size}
+              </span>
+            ))}
           </div>
         ) : (
           <div style={{ marginTop: 'auto' }}>
             <span style={{
-              fontSize: '11px',
-              fontFamily: 'var(--display)',
-              color: '#FF0000',
+              fontSize: '10px',
+              fontFamily: "'Space Grotesk', sans-serif",
+              color: '#FF2D2D',
               textTransform: 'uppercase',
-              letterSpacing: '0.5px',
-              fontWeight: '900',
-              border: '2px solid #FF0000',
-              padding: '4px 8px',
-              display: 'inline-block'
+              letterSpacing: '0.1em',
+              fontWeight: 700,
+              border: '1px solid #FF2D2D',
+              padding: '3px 8px',
+              display: 'inline-block',
             }}>
               AGOTADO
             </span>

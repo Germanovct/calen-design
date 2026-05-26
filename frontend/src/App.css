@@ -1,1 +1,6 @@
-/* Estilos específicos de componentes */
+/* App-level layout overrides — no global styles here */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}

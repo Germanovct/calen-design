@@ -11,38 +11,58 @@ const Product = () => {
   const { currentProduct, fetchProduct, loading } = useProducts();
   const { addItem } = useCartStore();
 
-  // Estados de variantes seleccionadas
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(false);
 
-  useEffect(() => {
-    fetchProduct(id);
-  }, [id]);
+  useEffect(() => { fetchProduct(id); }, [id]);
 
   useEffect(() => {
-    if (currentProduct && currentProduct.images && currentProduct.images.length > 0) {
+    if (currentProduct?.images?.length > 0) {
       setActiveImage(currentProduct.images[0]);
     }
   }, [currentProduct]);
 
   if (loading) {
-    return <div style={{ textAlign: 'center', padding: '120px 0', color: 'var(--gray-medium)' }}>Cargando prenda...</div>;
+    return (
+      <div style={{
+        textAlign: 'center',
+        padding: '160px 0',
+        fontFamily: "'Space Grotesk', sans-serif",
+        fontWeight: 900,
+        fontSize: '13px',
+        letterSpacing: '0.2em',
+        color: '#333',
+        textTransform: 'uppercase',
+      }}>
+        CARGANDO PRENDA...
+      </div>
+    );
   }
 
   if (!currentProduct) {
     return (
-      <div style={{ textAlign: 'center', padding: '120px 0', color: 'var(--gray-medium)' }}>
-        <h2>Prenda no encontrada</h2>
-        <button onClick={() => navigate('/productos')} className="btn-primary" style={{ marginTop: '16px' }}>
-          Volver al Catálogo
+      <div style={{ textAlign: 'center', padding: '120px 24px', backgroundColor: '#0A0A0A' }}>
+        <h2 style={{ fontSize: '48px', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#FFFFFF', marginBottom: '24px' }}>
+          PRENDA NO<br />ENCONTRADA
+        </h2>
+        <button
+          onClick={() => navigate('/productos')}
+          className="brutal-btn"
+          style={{ marginTop: '16px' }}
+        >
+          VOLVER AL CATÁLOGO
         </button>
       </div>
     );
   }
 
-  // Buscar variantes que coincidan con la selección actual
+  function getStockForCombination(size, color) {
+    const match = currentProduct.variants?.find(v => v.size === size && v.color === color);
+    return match ? match.stock : 0;
+  }
+
   const matchedVariant = currentProduct.variants?.find(
     v => v.size === selectedSize && v.color === selectedColor
   );
@@ -51,58 +71,117 @@ const Product = () => {
 
   const handleAddToCart = () => {
     if (isAddToCartDisabled) return;
-
     addItem(currentProduct, matchedVariant, 1);
     setSuccessMessage(true);
     setTimeout(() => setSuccessMessage(false), 3000);
   };
 
-  const defaultImage = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800';
+  const defaultImage = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=1200&auto=format&fit=crop';
   const displayImage = activeImage || defaultImage;
 
   return (
-    <div className="container" style={{ padding: '60px 24px 100px 24px' }}>
+    <div style={{ backgroundColor: '#0A0A0A', minHeight: '100vh' }}>
+
+      {/* ── LAYOUT EDITORIAL: Imagen grande + panel de detalle ── */}
       <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '64px',
-        alignItems: 'flex-start'
-      }}>
-        {/* GALERÍA DE IMÁGENES */}
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        minHeight: 'calc(100vh - 72px)',
+      }}
+        className="product-layout"
+      >
+
+        {/* ── COLUMNA IZQUIERDA: Imagen editorial full-height ── */}
         <div style={{
-          flex: '1 1 450px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '20px'
+          position: 'relative',
+          backgroundColor: '#111111',
+          overflow: 'hidden',
         }}>
+          {/* Imagen principal */}
           <img
             src={displayImage}
             alt={currentProduct.name}
             style={{
               width: '100%',
-              height: '520px',
+              height: '100%',
               objectFit: 'cover',
-              borderRadius: '0px',
-              border: 'var(--border-brutal)',
-              boxShadow: 'var(--shadow-brutal-lg)'
+              objectPosition: 'center top',
+              display: 'block',
+              minHeight: '600px',
+              filter: 'grayscale(20%)',
+              transition: 'filter 0.3s ease',
             }}
+            onMouseEnter={(e) => { e.currentTarget.style.filter = 'grayscale(0%)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.filter = 'grayscale(20%)'; }}
           />
 
-          {currentProduct.images && currentProduct.images.length > 1 && (
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          {/* Overlay gradiente abajo */}
+          <div style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(to bottom, transparent 60%, rgba(10,10,10,0.8) 100%)',
+            pointerEvents: 'none',
+            zIndex: 1,
+          }} />
+
+          {/* Nombre del producto superpuesto en la parte inferior */}
+          <div style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 2,
+            padding: '32px',
+          }}>
+            <span style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.25em',
+              color: 'rgba(255,255,255,0.4)',
+              textTransform: 'uppercase',
+              display: 'block',
+              marginBottom: '8px',
+            }}>
+              — CALEN DESIGN / COL. 01
+            </span>
+            <h1 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: 'clamp(28px, 4vw, 52px)',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+              color: '#FFFFFF',
+              lineHeight: 1,
+            }}>
+              {currentProduct.name}
+            </h1>
+          </div>
+
+          {/* Thumbnails de imágenes adicionales */}
+          {currentProduct.images?.length > 1 && (
+            <div style={{
+              position: 'absolute',
+              top: '24px',
+              right: '16px',
+              zIndex: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+            }}>
               {currentProduct.images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImage(img)}
                   style={{
-                    width: '80px',
-                    height: '100px',
-                    borderRadius: '0px',
+                    width: '56px',
+                    height: '72px',
+                    padding: 0,
                     overflow: 'hidden',
-                    border: activeImage === img ? 'var(--border-brutal)' : '2px solid var(--black)',
-                    boxShadow: activeImage === img ? '3px 3px 0px #000000' : 'none',
-                    transform: activeImage === img ? 'translate(-2px, -2px)' : 'none',
-                    padding: 0
+                    border: activeImage === img ? '1px solid #FFFFFF' : '1px solid #333',
+                    opacity: activeImage === img ? 1 : 0.5,
+                    transition: 'all 0.18s ease',
+                    cursor: 'pointer',
                   }}
                 >
                   <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -112,137 +191,233 @@ const Product = () => {
           )}
         </div>
 
-        {/* DETALLE Y COMPRA (Columna rota, desplazada verticalmente y enmarcada) */}
+        {/* ── COLUMNA DERECHA: Panel de compra ── */}
         <div style={{
-          flex: '1 1 400px',
+          backgroundColor: '#0A0A0A',
+          borderLeft: '1px solid #1A1A1A',
+          padding: '64px 48px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '24px',
-          border: 'var(--border-brutal)',
-          padding: '32px',
-          backgroundColor: 'var(--white)',
-          boxShadow: 'var(--shadow-brutal-lg)',
-          marginTop: '40px', // Broken offset
-          borderRadius: '0px'
+          gap: '32px',
+          overflowY: 'auto',
         }}>
-          <div>
-            <h1 style={{ fontSize: '40px', lineHeight: '1.1', marginBottom: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>
+          {/* Breadcrumb editorial */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              onClick={() => navigate('/productos')}
+              style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: '11px',
+                fontWeight: 700,
+                letterSpacing: '0.15em',
+                color: '#555',
+                textTransform: 'uppercase',
+                transition: 'color 0.18s ease',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#555'; }}
+            >
+              CATÁLOGO
+            </button>
+            <span style={{ color: '#333', fontSize: '11px' }}>—</span>
+            <span style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '11px',
+              fontWeight: 700,
+              letterSpacing: '0.15em',
+              color: '#FF2D2D',
+              textTransform: 'uppercase',
+            }}>
               {currentProduct.name}
-            </h1>
-            <p style={{ fontSize: '32px', fontWeight: '900', fontFamily: 'var(--display)', color: 'var(--primary-pink)' }}>
+            </span>
+          </div>
+
+          {/* Precio — enorme, en rojo */}
+          <div>
+            <p style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: 'clamp(40px, 5vw, 64px)',
+              fontWeight: 900,
+              color: '#FF2D2D',
+              letterSpacing: '-0.01em',
+              lineHeight: 1,
+            }}>
               ${parseFloat(currentProduct.price).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
 
-          <div style={{
-            height: '4px',
-            backgroundColor: 'var(--black)'
-          }} />
+          {/* Separador */}
+          <div style={{ height: '1px', backgroundColor: '#1A1A1A' }} />
 
-          {/* SELECTOR DE VARIANTES */}
-          {currentProduct.variants && currentProduct.variants.length > 0 ? (
+          {/* Selector de variantes */}
+          {currentProduct.variants?.length > 0 ? (
             <VariantSelector
               variants={currentProduct.variants}
               selectedSize={selectedSize}
               onSelectSize={setSelectedSize}
               selectedColor={selectedColor}
-              onSelectColor={onSelectColor => {
-                setSelectedColor(onSelectColor);
-                // Si la combinación no es válida, limpiar talle para forzar nueva selección
-                if (selectedSize && getStockForCombination(selectedSize, onSelectColor) <= 0) {
+              onSelectColor={(c) => {
+                setSelectedColor(c);
+                if (selectedSize && getStockForCombination(selectedSize, c) <= 0) {
                   setSelectedSize(null);
                 }
               }}
             />
           ) : (
-            <div style={{ color: '#FF0000', fontWeight: '900', fontFamily: 'var(--display)', textTransform: 'uppercase' }}>Sin stock disponible temporalmente.</div>
+            <div style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 900,
+              fontSize: '13px',
+              color: '#FF2D2D',
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+            }}>
+              SIN STOCK DISPONIBLE TEMPORALMENTE
+            </div>
           )}
 
-          {/* Muestra información de stock una vez seleccionado */}
+          {/* Info de stock seleccionado */}
           {selectedSize && selectedColor && matchedVariant && (
-            <span style={{ fontSize: '13px', fontFamily: 'var(--display)', fontWeight: '800', color: matchedVariant.stock > 0 ? 'var(--black)' : '#FF0000', textTransform: 'uppercase' }}>
-              {matchedVariant.stock > 0 
-                ? `DISPONIBLES EN STOCK: ${matchedVariant.stock} UNIDADES` 
-                : 'AGOTADO EN ESTA COMBINACIÓN'}
+            <span style={{
+              fontSize: '12px',
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontWeight: 700,
+              color: matchedVariant.stock > 0 ? '#C8FF00' : '#FF2D2D',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+            }}>
+              {matchedVariant.stock > 0
+                ? `✓ ${matchedVariant.stock} UNIDADES DISPONIBLES`
+                : '✗ AGOTADO EN ESTA COMBINACIÓN'}
             </span>
           )}
 
-          {/* BOTÓN AGREGAR AL CARRITO */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
+          {/* ── BOTÓN AGREGAR AL CARRITO ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button
               onClick={handleAddToCart}
               disabled={isAddToCartDisabled}
-              className="brutal-btn brutal-btn-black"
               style={{
                 width: '100%',
-                padding: '20px',
-                fontSize: '18px',
-                fontFamily: 'var(--display)',
-                fontWeight: '900',
-                letterSpacing: '1px',
-                cursor: isAddToCartDisabled ? 'not-allowed' : 'pointer'
+                padding: '20px 24px',
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontWeight: 900,
+                fontSize: '14px',
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                backgroundColor: isAddToCartDisabled ? '#1A1A1A' : '#FFFFFF',
+                color: isAddToCartDisabled ? '#444' : '#000000',
+                border: isAddToCartDisabled ? '1px solid #2A2A2A' : '1px solid #FFFFFF',
+                cursor: isAddToCartDisabled ? 'not-allowed' : 'pointer',
+                transition: 'all 0.18s ease',
+              }}
+              onMouseEnter={(e) => {
+                if (!isAddToCartDisabled) {
+                  e.currentTarget.style.backgroundColor = '#FF2D2D';
+                  e.currentTarget.style.color = '#FFFFFF';
+                  e.currentTarget.style.borderColor = '#FF2D2D';
+                  e.currentTarget.style.transform = 'translate(-2px, -2px)';
+                  e.currentTarget.style.boxShadow = '4px 4px 0px #FF2D2D';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isAddToCartDisabled) {
+                  e.currentTarget.style.backgroundColor = '#FFFFFF';
+                  e.currentTarget.style.color = '#000000';
+                  e.currentTarget.style.borderColor = '#FFFFFF';
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = 'none';
+                }
               }}
             >
-              {!selectedSize || !selectedColor 
-                ? 'SELECCIONAR TALLE Y COLOR' 
-                : matchedVariant && matchedVariant.stock > 0 
-                  ? 'AGREGAR AL CARRITO' 
+              {!selectedSize || !selectedColor
+                ? 'SELECCIONAR TALLE Y COLOR'
+                : matchedVariant?.stock > 0
+                  ? 'AGREGAR AL CARRITO'
                   : 'SIN STOCK'}
             </button>
 
             {successMessage && (
               <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 style={{
                   padding: '14px',
-                  backgroundColor: 'var(--primary-yellow)',
-                  color: 'var(--black)',
-                  border: '2px solid var(--black)',
-                  fontSize: '13px',
-                  fontFamily: 'var(--display)',
+                  backgroundColor: '#0A0A0A',
+                  color: '#C8FF00',
+                  border: '1px solid #C8FF00',
+                  fontSize: '12px',
+                  fontFamily: "'Space Grotesk', sans-serif",
                   textAlign: 'center',
-                  fontWeight: '900',
+                  fontWeight: 900,
                   textTransform: 'uppercase',
-                  boxShadow: '3px 3px 0px #000000'
+                  letterSpacing: '0.12em',
                 }}
               >
-                ¡Agregado al carrito con éxito!
+                ✓ AGREGADO AL CARRITO
               </motion.div>
             )}
           </div>
 
-          <div style={{
-            height: '2px',
-            backgroundColor: 'var(--black)'
-          }} />
+          {/* Separador */}
+          <div style={{ height: '1px', backgroundColor: '#1A1A1A' }} />
 
-          {/* DESCRIPCIÓN */}
+          {/* Descripción */}
           <div>
-            <h3 style={{ fontSize: '14px', fontFamily: 'var(--display)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px', fontWeight: '900' }}>
-              Descripción
+            <h3 style={{
+              fontFamily: "'Space Grotesk', sans-serif",
+              fontSize: '11px',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.18em',
+              color: '#555',
+              marginBottom: '16px',
+            }}>
+              DESCRIPCIÓN
             </h3>
             <p style={{
               fontSize: '14px',
-              fontFamily: 'var(--sans)',
-              fontWeight: '500',
-              color: 'var(--black)',
-              lineHeight: '1.8',
-              whiteSpace: 'pre-line'
+              fontFamily: "'Inter', sans-serif",
+              fontWeight: 400,
+              color: '#888',
+              lineHeight: 1.9,
+              whiteSpace: 'pre-line',
             }}>
               {currentProduct.description || 'Prenda exclusiva de diseño independiente de la colección Calen Design. Confeccionada con materiales de primera calidad y excelentes terminaciones.'}
             </p>
           </div>
+
+          {/* Tags editoriales */}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '8px' }}>
+            {['ENVÍO A TODO EL PAÍS', 'DISEÑO PROPIO', 'CALIDAD PREMIUM'].map(tag => (
+              <span key={tag} style={{
+                fontFamily: "'Space Grotesk', sans-serif",
+                fontSize: '10px',
+                fontWeight: 700,
+                letterSpacing: '0.12em',
+                color: '#444',
+                textTransform: 'uppercase',
+                border: '1px solid #2A2A2A',
+                padding: '5px 10px',
+              }}>
+                {tag}
+              </span>
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* ── RESPONSIVE: Mobile stacked layout ── */}
+      <style>{`
+        @media (max-width: 768px) {
+          .product-layout {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
-
-  function getStockForCombination(size, color) {
-    const match = currentProduct.variants?.find(v => v.size === size && v.color === color);
-    return match ? match.stock : 0;
-  }
 };
 
 export default Product;
