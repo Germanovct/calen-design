@@ -220,3 +220,38 @@ create policy "Admin Delete Product Images"
       or auth.jwt() ->> 'role' = 'service_role'
     )
   );
+
+-- ==========================================
+-- 7. VISTAS ACTUALIZABLES EN EL SCHEMA "public" (Workaround para Exposed Schemas)
+-- ==========================================
+
+-- Crear Vistas en SCHEMA "public" que apuntan a "calen"
+create or replace view public.categories with (security_invoker = true) as 
+select id, name, slug, created_at from calen.categories;
+
+create or replace view public.products with (security_invoker = true) as 
+select id, name, description, category_id, price, images, active, created_at from calen.products;
+
+create or replace view public.variants with (security_invoker = true) as 
+select id, product_id, size, color, stock, created_at from calen.variants;
+
+create or replace view public.orders with (security_invoker = true) as 
+select id, user_id, status, total, shipping_address, mp_payment_id, created_at from calen.orders;
+
+create or replace view public.order_items with (security_invoker = true) as 
+select id, order_id, variant_id, quantity, unit_price from calen.order_items;
+
+create or replace view public.shipping_labels with (security_invoker = true) as 
+select id, order_id, carrier, tracking_number, label_url, created_at from calen.shipping_labels;
+
+-- Otorgar permisos sobre las vistas a los roles del API de Supabase
+grant select, insert, update, delete on public.categories to anon, authenticated, service_role;
+grant select, insert, update, delete on public.products to anon, authenticated, service_role;
+grant select, insert, update, delete on public.variants to anon, authenticated, service_role;
+grant select, insert, update, delete on public.orders to anon, authenticated, service_role;
+grant select, insert, update, delete on public.order_items to anon, authenticated, service_role;
+grant select, insert, update, delete on public.shipping_labels to anon, authenticated, service_role;
+
+-- Asegurar permisos de uso en el schema "calen" para que las vistas puedan acceder
+grant usage on schema calen to anon, authenticated, service_role;
+grant select, insert, update, delete on all tables in schema calen to anon, authenticated, service_role;
