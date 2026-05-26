@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Response
-from app.schemas.auth import UserRegister, UserLogin, UserResponse
-from app.core.database import get_db
+from app.schemas.auth import UserRegister, UserLogin, UserResponse, AdminUserResponse
+from app.core.database import get_db, get_admin_db
 from app.core.security import create_access_token
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, require_admin
 from supabase import Client
 
 router = APIRouter()
@@ -129,3 +129,41 @@ def get_me(current_user: dict = Depends(get_current_user)):
 def logout(response: Response):
     response.delete_cookie(key="access_token")
     return {"message": "Sesión cerrada correctamente"}
+
+@router.get("/users", response_model=list[AdminUserResponse])
+def list_registered_users(
+    current_user: dict = Depends(require_admin),
+    admin_db: Client = Depends(get_admin_db)
+):
+    if not admin_db:
+        raise HTTPException(
+            status_code=500,
+            detail="El cliente administrador de la base de datos no está inicializado."
+        )
+    try:
+        users_list = admin_db.auth.admin.list_users()
+        
+        formatted_users = []
+        for u in users_list:
+            user_meta = u.user_metadata or {}
+            role = user_meta.get("role", "user")
+            if u.email in ["germanovct@gmail.com"]:
+                role = "admin"
+                
+            formatted_users.append(
+                AdminUserResponse(
+                    id=u.id,
+                    email=u.email,
+                    name=user_meta.get("name"),
+                    phone=user_meta.get("phone"),
+                    address=user_meta.get("address"),
+                    role=role,
+                    created_at=str(u.created_at) if u.created_at else None
+                )
+            )
+        return formatted_users
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error al listar usuarios de Supabase: {str(e)}"
+        )

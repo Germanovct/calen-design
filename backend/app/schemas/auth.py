@@ -19,3 +19,12 @@ class UserResponse(BaseModel):
     phone: Optional[str] = None
     address: Optional[str] = None
     role: str = "user"
+
+class AdminUserResponse(BaseModel):
+    id: str
+    email: EmailStr
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    role: str = "user"
+    created_at: Optional[str] = None

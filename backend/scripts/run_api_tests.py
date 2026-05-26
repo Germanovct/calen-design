@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from app.main import app
-from app.core.database import get_db
+from app.core.database import get_db, get_admin_db
 from app.core.dependencies import get_current_user
 
 # Crear un cliente de prueba
@@ -130,6 +130,47 @@ def test_shipping_label_mocked():
     
     app.dependency_overrides.clear()
 
+def test_users_list_admin_mocked():
+    print("[*] Testing GET /api/auth/users with different roles...")
+    
+    # 1. Sin autenticar (Anónimo)
+    # get_current_user alzará HTTPException 401 si no hay token, lo mockeamos para fallar
+    def mock_get_current_user_anonymous():
+        from fastapi import HTTPException
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    app.dependency_overrides[get_current_user] = mock_get_current_user_anonymous
+    response = client.get("/api/auth/users")
+    assert response.status_code == 401
+    
+    # 2. Con rol user (Acceso denegado)
+    app.dependency_overrides[get_current_user] = lambda: {"id": "user-123", "role": "user"}
+    response = client.get("/api/auth/users")
+    assert response.status_code == 403
+    
+    # 3. Con rol admin (Exitoso)
+    app.dependency_overrides[get_current_user] = lambda: {"id": "admin-123", "role": "admin"}
+    
+    mock_admin_db = MagicMock()
+    mock_user_1 = MagicMock()
+    mock_user_1.id = "usr-1"
+    mock_user_1.email = "cliente1@example.com"
+    mock_user_1.created_at = "2026-05-26T12:00:00Z"
+    mock_user_1.user_metadata = {"name": "Cliente Uno", "phone": "112233", "address": "Direccion 1", "role": "user"}
+    
+    mock_admin_db.auth.admin.list_users.return_value = [mock_user_1]
+    app.dependency_overrides[get_admin_db] = lambda: mock_admin_db
+    
+    response = client.get("/api/auth/users")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 1
+    assert data[0]["email"] == "cliente1@example.com"
+    assert data[0]["name"] == "Cliente Uno"
+    assert data[0]["role"] == "user"
+    print("[+] Admin users listing OK!")
+    
+    app.dependency_overrides.clear()
+
 if __name__ == "__main__":
     print("=== STARTING FASTAPI ROUTER TESTS ===")
     try:
@@ -137,6 +178,7 @@ if __name__ == "__main__":
         test_products_list_mocked()
         test_auth_login_invalid()
         test_shipping_label_mocked()
+        test_users_list_admin_mocked()
         print("=== ALL TESTS PASSED SUCCESSFULLY ===")
         sys.exit(0)
     except AssertionError as e:

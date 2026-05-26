@@ -5,6 +5,8 @@ export const useAuth = create((set) => ({
   user: null,
   loading: false,
   error: null,
+  users: [],
+  loadingUsers: false,
 
   login: async (email, password) => {
     set({ loading: true, error: null });
@@ -50,6 +52,19 @@ export const useAuth = create((set) => ({
     } catch (err) {
       set({ user: null, loading: false });
       return null;
+    }
+  },
+
+  fetchUsers: async () => {
+    set({ loadingUsers: true, error: null });
+    try {
+      const res = await api.get('/api/auth/users');
+      set({ users: res.data, loadingUsers: false });
+      return res.data;
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Error al cargar clientes';
+      set({ error: msg, loadingUsers: false });
+      throw new Error(msg);
     }
   }
 }));

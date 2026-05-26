@@ -6,14 +6,14 @@ import { useOrders } from '../hooks/useOrders';
 
 const Admin = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, users, loadingUsers, fetchUsers } = useAuth();
   const { 
     products, categories, fetchProducts, fetchCategories, 
     createProduct, deleteProduct, uploadImage, updateVariant
   } = useProducts();
   const { orders, fetchOrders, updateOrderStatus, addShippingInfo } = useOrders();
 
-  // Tab: 'dashboard' | 'products' | 'orders' | 'stock'
+  // Tab: 'dashboard' | 'products' | 'orders' | 'stock' | 'users'
   const [activeTab, setActiveTab] = useState('dashboard');
   const [loadingData, setLoadingData] = useState(true);
 
@@ -51,6 +51,11 @@ const Admin = () => {
       await fetchCategories();
       await fetchProducts({ active: null }); // Traer todos, activos e inactivos
       await fetchOrders();
+      try {
+        await fetchUsers();
+      } catch (err) {
+        console.error("Error cargando usuarios en el admin:", err);
+      }
       setLoadingData(false);
     };
 
@@ -163,7 +168,7 @@ const Admin = () => {
         marginBottom: '32px',
         gap: '8px'
       }}>
-        {['dashboard', 'products', 'orders', 'stock'].map(tab => (
+        {['dashboard', 'products', 'orders', 'stock', 'users'].map(tab => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -181,6 +186,7 @@ const Admin = () => {
             {tab === 'products' && 'Productos'}
             {tab === 'orders' && 'Pedidos'}
             {tab === 'stock' && 'Control de Stock'}
+            {tab === 'users' && 'Clientes'}
           </button>
         ))}
       </div>
@@ -463,6 +469,54 @@ const Admin = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* TAB 5: USERS LIST */}
+      {activeTab === 'users' && (
+        <div style={{
+          backgroundColor: 'var(--white)',
+          padding: '24px',
+          borderRadius: 'var(--border-radius)',
+          border: '1px solid var(--gray-light)'
+        }}>
+          <h2 style={{ fontSize: '20px', fontFamily: 'var(--serif)', marginBottom: '16px' }}>Clientes Registrados</h2>
+          {loadingUsers ? (
+            <p style={{ color: 'var(--gray-medium)' }}>Cargando clientes...</p>
+          ) : users.length === 0 ? (
+            <p style={{ color: 'var(--gray-medium)' }}>No hay clientes registrados aún.</p>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid var(--gray-light)' }}>
+                    <th style={{ padding: '12px 8px' }}>Nombre</th>
+                    <th style={{ padding: '12px 8px' }}>Email</th>
+                    <th style={{ padding: '12px 8px' }}>Teléfono</th>
+                    <th style={{ padding: '12px 8px' }}>Dirección</th>
+                    <th style={{ padding: '12px 8px' }}>Rol</th>
+                    <th style={{ padding: '12px 8px' }}>Fecha Registro</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {users.map(u => (
+                    <tr key={u.id} style={{ borderBottom: '1px solid var(--gray-light)' }}>
+                      <td style={{ padding: '12px 8px', fontWeight: '500' }}>{u.name || '-'}</td>
+                      <td style={{ padding: '12px 8px' }}>{u.email}</td>
+                      <td style={{ padding: '12px 8px' }}>{u.phone || '-'}</td>
+                      <td style={{ padding: '12px 8px' }}>{u.address || '-'}</td>
+                      <td style={{ padding: '12px 8px' }}>
+                        <span className={`badge badge-${u.role}`} style={{ fontSize: '10px' }}>{u.role}</span>
+                      </td>
+                      <td style={{ padding: '12px 8px' }}>
+                        {u.created_at ? new Date(u.created_at).toLocaleDateString('es-AR') : '-'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>
