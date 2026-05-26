@@ -25,29 +25,33 @@ const CheckoutStepper = ({ currentStep }) => {
             zIndex: 2
           }}>
             <div style={{
-              width: '36px',
-              height: '36px',
+              width: '40px',
+              height: '40px',
               borderRadius: '50%',
-              backgroundColor: currentStep >= step.number ? 'var(--dark-black)' : 'var(--white)',
-              color: currentStep >= step.number ? 'var(--white)' : 'var(--gray-medium)',
-              border: `2px solid ${currentStep >= step.number ? 'var(--dark-black)' : 'var(--gray-light)'}`,
+              backgroundColor: currentStep >= step.number ? 'var(--primary-yellow)' : 'var(--white)',
+              color: 'var(--black)',
+              border: '3px solid #000000',
+              boxShadow: currentStep >= step.number ? '3px 3px 0px #000000' : 'none',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: '600',
-              fontSize: '14px',
+              fontWeight: '900',
+              fontFamily: 'var(--display)',
+              fontSize: '15px',
               transition: 'var(--transition)'
             }}>
               {step.number}
             </div>
             <span style={{
-              fontSize: '12px',
-              fontWeight: currentStep === step.number ? '600' : '400',
-              color: currentStep === step.number ? 'var(--dark-black)' : 'var(--gray-medium)',
+              fontSize: '11px',
+              fontWeight: '900',
+              fontFamily: 'var(--display)',
+              textTransform: 'uppercase',
+              color: currentStep === step.number ? 'var(--primary-pink)' : 'var(--black)',
               marginTop: '8px',
               whiteSpace: 'nowrap',
               position: 'absolute',
-              top: '40px'
+              top: '44px'
             }}>
               {step.label}
             </span>
@@ -57,10 +61,10 @@ const CheckoutStepper = ({ currentStep }) => {
             <div style={{
               flex: '1',
               maxWidth: '120px',
-              height: '2px',
-              backgroundColor: currentStep > step.number ? 'var(--dark-black)' : 'var(--gray-light)',
+              height: '4px',
+              backgroundColor: '#000000',
               margin: '0 12px',
-              transform: 'translateY(-12px)',
+              transform: 'translateY(-16px)',
               transition: 'var(--transition)',
               zIndex: 1
             }} />

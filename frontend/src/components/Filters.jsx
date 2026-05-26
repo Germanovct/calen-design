@@ -8,109 +8,147 @@ const Filters = ({ categories, selectedCategory, onSelectCategory, selectedSize,
     <div style={{
       backgroundColor: 'var(--white)',
       padding: '24px',
-      borderRadius: 'var(--border-radius)',
-      border: '1px solid var(--gray-light)',
+      borderRadius: '0px',
+      border: 'var(--border-brutal)',
+      boxShadow: 'var(--shadow-brutal)',
       display: 'flex',
       flexDirection: 'column',
       gap: '24px'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h3 style={{ fontSize: '18px', fontFamily: 'var(--serif)' }}>Filtros</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #000000', paddingBottom: '12px' }}>
+        <h3 style={{ fontSize: '20px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>FILTROS</h3>
         <button 
           onClick={onClearFilters} 
           style={{ 
             fontSize: '12px', 
             textDecoration: 'underline', 
-            color: 'var(--gray-medium)' 
+            fontWeight: '800',
+            fontFamily: 'var(--display)',
+            textTransform: 'uppercase',
+            color: 'var(--black)'
           }}
         >
-          Limpiar
+          LIMPIAR
         </button>
       </div>
 
       {/* CATEGORIES */}
       <div>
-        <h4 style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px', fontWeight: '600' }}>Categoría</h4>
+        <h4 style={{ fontSize: '12px', fontFamily: 'var(--display)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px', fontWeight: '900' }}>Categoría</h4>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button
             onClick={() => onSelectCategory(null)}
             style={{
               textAlign: 'left',
-              padding: '6px 8px',
-              borderRadius: '4px',
-              fontSize: '14px',
-              backgroundColor: !selectedCategory ? 'var(--nude-light)' : 'transparent',
-              fontWeight: !selectedCategory ? '600' : '400'
+              padding: '10px 14px',
+              borderRadius: '0px',
+              border: '2px solid #000000',
+              fontSize: '13px',
+              fontFamily: 'var(--display)',
+              fontWeight: '800',
+              textTransform: 'uppercase',
+              backgroundColor: !selectedCategory ? 'var(--primary-yellow)' : 'var(--white)',
+              color: 'var(--black)',
+              boxShadow: !selectedCategory ? '2px 2px 0px #000000' : 'none',
+              transform: !selectedCategory ? 'translate(-1px, -1px)' : 'none',
+              transition: 'var(--transition)'
             }}
           >
-            Todas
+            TODAS
           </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onSelectCategory(cat.slug)}
-              style={{
-                textAlign: 'left',
-                padding: '6px 8px',
-                borderRadius: '4px',
-                fontSize: '14px',
-                backgroundColor: selectedCategory === cat.slug ? 'var(--nude-light)' : 'transparent',
-                fontWeight: selectedCategory === cat.slug ? '600' : '400'
-              }}
-            >
-              {cat.name}
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const active = selectedCategory === cat.slug;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => onSelectCategory(cat.slug)}
+                style={{
+                  textAlign: 'left',
+                  padding: '10px 14px',
+                  borderRadius: '0px',
+                  border: '2px solid #000000',
+                  fontSize: '13px',
+                  fontFamily: 'var(--display)',
+                  fontWeight: '800',
+                  textTransform: 'uppercase',
+                  backgroundColor: active ? 'var(--primary-yellow)' : 'var(--white)',
+                  color: 'var(--black)',
+                  boxShadow: active ? '2px 2px 0px #000000' : 'none',
+                  transform: active ? 'translate(-1px, -1px)' : 'none',
+                  transition: 'var(--transition)'
+                }}
+              >
+                {cat.name}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* SIZES */}
       <div>
-        <h4 style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px', fontWeight: '600' }}>Talle</h4>
+        <h4 style={{ fontSize: '12px', fontFamily: 'var(--display)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px', fontWeight: '900' }}>Talle</h4>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {sizes.map((size) => (
-            <button
-              key={size}
-              onClick={() => onSelectSize(selectedSize === size ? null : size)}
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                border: '1px solid var(--gray-light)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '12px',
-                backgroundColor: selectedSize === size ? 'var(--dark-black)' : 'var(--white)',
-                color: selectedSize === size ? 'var(--white)' : 'var(--dark-black)'
-              }}
-            >
-              {size}
-            </button>
-          ))}
+          {sizes.map((size) => {
+            const active = selectedSize === size;
+            return (
+              <button
+                key={size}
+                onClick={() => onSelectSize(active ? null : size)}
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '0px',
+                  border: '2px solid #000000',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '13px',
+                  fontFamily: 'var(--display)',
+                  fontWeight: '900',
+                  backgroundColor: active ? 'var(--primary-pink)' : 'var(--white)',
+                  color: 'var(--black)',
+                  boxShadow: active ? '2px 2px 0px #000000' : 'none',
+                  transform: active ? 'translate(-1px, -1px)' : 'none',
+                  transition: 'var(--transition)'
+                }}
+              >
+                {size}
+              </button>
+            );
+          })}
         </div>
       </div>
 
       {/* COLORS */}
       <div>
-        <h4 style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px', fontWeight: '600' }}>Color</h4>
+        <h4 style={{ fontSize: '12px', fontFamily: 'var(--display)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px', fontWeight: '900' }}>Color</h4>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {colors.map((color) => (
-            <button
-              key={color}
-              onClick={() => onSelectColor(selectedColor === color ? null : color)}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '20px',
-                border: '1px solid var(--gray-light)',
-                fontSize: '12px',
-                backgroundColor: selectedColor === color ? 'var(--dark-black)' : 'var(--white)',
-                color: selectedColor === color ? 'var(--white)' : 'var(--dark-black)'
-              }}
-            >
-              {color}
-            </button>
-          ))}
+          {colors.map((color) => {
+            const active = selectedColor === color;
+            return (
+              <button
+                key={color}
+                onClick={() => onSelectColor(active ? null : color)}
+                style={{
+                  padding: '8px 14px',
+                  borderRadius: '0px',
+                  border: '2px solid #000000',
+                  fontSize: '12px',
+                  fontFamily: 'var(--display)',
+                  fontWeight: '800',
+                  textTransform: 'uppercase',
+                  backgroundColor: active ? 'var(--primary-pink)' : 'var(--white)',
+                  color: 'var(--black)',
+                  boxShadow: active ? '2px 2px 0px #000000' : 'none',
+                  transform: active ? 'translate(-1px, -1px)' : 'none',
+                  transition: 'var(--transition)'
+                }}
+              >
+                {color}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -21,56 +21,61 @@ const Home = () => {
   ];
 
   return (
-    <div style={{ paddingBottom: '64px' }}>
+    <div style={{ paddingBottom: '80px', backgroundColor: '#FFFFFF' }}>
       {/* Hero Section */}
       <section style={{
         position: 'relative',
-        height: '600px',
+        height: '80vh',
+        minHeight: '600px',
         background: `url(${heroImg}) no-repeat center center`,
         backgroundSize: 'cover',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        paddingLeft: '80px',
-        marginBottom: '64px'
+        padding: '0 80px',
+        borderBottom: 'var(--border-brutal)',
+        marginBottom: '80px'
       }}>
-        {/* Dark overlay for readability */}
+        {/* Semi-transparent overlay to ensure contrast */}
         <div style={{
           position: 'absolute',
           top: 0,
           left: 0,
           width: '100%',
           height: '100%',
-          backgroundColor: 'rgba(255, 255, 255, 0.4)',
+          backgroundColor: 'rgba(255, 255, 255, 0.2)',
           zIndex: 1
         }} />
 
         <div style={{
           position: 'relative',
           zIndex: 2,
-          maxWidth: '500px',
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          maxWidth: '600px',
+          backgroundColor: 'var(--primary-yellow)',
           padding: '48px',
-          borderRadius: 'var(--border-radius)',
-          boxShadow: 'var(--shadow-md)'
+          border: 'var(--border-brutal)',
+          boxShadow: 'var(--shadow-brutal-lg)',
+          borderRadius: '0px'
         }}>
-          <h1 style={{ fontSize: '44px', lineHeight: '1.2', marginBottom: '16px' }}>Calen Design</h1>
-          <p style={{ fontSize: '16px', color: 'var(--gray-medium)', marginBottom: '32px', lineHeight: '1.8' }}>
-            Ropa de diseño atemporal, con cortes minimalistas y texturas que inspiran comodidad. Creado especialmente para vos.
+          <h1 style={{ fontSize: '64px', lineHeight: '1.0', marginBottom: '20px', fontWeight: '900', fontFamily: 'var(--display)' }}>
+            CALEN DESIGN
+          </h1>
+          <p style={{ fontSize: '18px', color: '#000000', marginBottom: '32px', lineHeight: '1.6', fontWeight: '800', fontFamily: 'var(--display)' }}>
+            ROPA DE DISEÑO ATEMPORAL, CON CORTES MINIMALISTAS Y TEXTURAS QUE INSPIRAN COMODIDAD. CREADO ESPECIALMENTE PARA VOS.
           </p>
-          <Link to="/productos" className="btn-primary">
-            Ver Colección
+          <Link to="/productos" className="brutal-btn brutal-btn-black" style={{ padding: '16px 36px', fontSize: '16px' }}>
+            VER COLECCIÓN
           </Link>
         </div>
       </section>
 
       {/* Grid de Categorías */}
-      <section className="container" style={{ marginBottom: '80px' }}>
-        <h2 className="section-title">Comprar por Categoría</h2>
+      <section className="container" style={{ marginBottom: '100px' }}>
+        <h2 className="section-title">COMPRAR POR CATEGORÍA</h2>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-          gap: '24px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '32px',
           marginTop: '32px'
         }}>
           {categories.map((cat) => (
@@ -79,19 +84,25 @@ const Home = () => {
               to={`/productos?category=${cat.slug}`}
               style={{
                 position: 'relative',
-                height: '240px',
-                borderRadius: 'var(--border-radius)',
+                height: '260px',
+                borderRadius: '0px',
+                border: 'var(--border-brutal)',
+                boxShadow: 'var(--shadow-brutal)',
                 overflow: 'hidden',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                boxShadow: 'var(--shadow-sm)'
+                transition: 'var(--transition)'
               }}
               onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translate(-3px, -3px)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-brutal-hover)';
                 const img = e.currentTarget.querySelector('img');
-                if (img) img.style.transform = 'scale(1.08)';
+                if (img) img.style.transform = 'scale(1.05)';
               }}
               onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'none';
+                e.currentTarget.style.boxShadow = 'var(--shadow-brutal)';
                 const img = e.currentTarget.querySelector('img');
                 if (img) img.style.transform = 'scale(1)';
               }}
@@ -115,17 +126,21 @@ const Home = () => {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                backgroundColor: 'rgba(0, 0, 0, 0.25)',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
                 zIndex: 1
               }} />
               <span style={{
                 position: 'relative',
                 zIndex: 2,
                 color: 'var(--white)',
-                fontSize: '20px',
-                fontFamily: 'var(--serif)',
-                fontWeight: '600',
-                letterSpacing: '0.5px'
+                fontSize: '22px',
+                fontFamily: 'var(--display)',
+                fontWeight: '900',
+                textTransform: 'uppercase',
+                backgroundColor: '#000000',
+                border: '2px solid var(--white)',
+                padding: '8px 16px',
+                boxShadow: '3px 3px 0px #000000'
               }}>
                 {cat.name}
               </span>
@@ -136,22 +151,30 @@ const Home = () => {
 
       {/* Productos Destacados */}
       <section className="container">
-        <h2 className="section-title">Destacados</h2>
+        <h2 className="section-title">DESTACADOS</h2>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--gray-medium)' }}>Cargando catálogo...</div>
+          <div style={{ textAlign: 'center', padding: '64px 0', fontFamily: 'var(--display)', fontWeight: '800' }}>CARGANDO CATÁLOGO...</div>
         ) : (
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-            gap: '32px',
+            gap: '40px',
             marginTop: '32px'
           }}>
-            {products.slice(0, 4).map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {products.slice(0, 4).map((product, idx) => (
+              <div 
+                key={product.id} 
+                style={{
+                  transform: idx % 2 === 0 ? 'translateY(16px)' : 'none',
+                  marginTop: idx % 2 !== 0 ? '16px' : '0px'
+                }}
+              >
+                <ProductCard product={product} />
+              </div>
             ))}
             {products.length === 0 && (
-              <div style={{ gridColumn: '1 / -1', textAlign: 'center', color: 'var(--gray-medium)', padding: '32px' }}>
-                No hay productos destacados cargados aún.
+              <div style={{ gridColumn: '1 / -1', textAlign: 'center', fontFamily: 'var(--display)', fontWeight: '800', padding: '32px', border: 'var(--border-brutal)', backgroundColor: 'var(--primary-pink)' }}>
+                NO HAY PRODUCTOS DESTACADOS CARGADOS AÚN.
               </div>
             )}
           </div>

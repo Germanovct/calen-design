@@ -84,44 +84,45 @@ const Account = () => {
   };
 
   return (
-    <div className="container" style={{ padding: '60px 24px 80px 24px', maxWidth: '520px' }}>
+    <div className="container" style={{ padding: '60px 24px 100px 24px', maxWidth: '520px', backgroundColor: '#FFFFFF' }}>
       
       {/* 1. MOCK DASHBOARD FOR AUTHENTICATED USER */}
       {user ? (
         <div style={{
           backgroundColor: 'var(--white)',
           padding: '40px',
-          borderRadius: 'var(--border-radius)',
-          border: '1px solid var(--gray-light)',
+          borderRadius: '0px',
+          border: 'var(--border-brutal)',
+          boxShadow: 'var(--shadow-brutal-lg)',
           display: 'flex',
           flexDirection: 'column',
           gap: '24px'
         }}>
           <div style={{ textAlign: 'center' }}>
-            <h1 style={{ fontSize: '32px', fontFamily: 'var(--serif)', marginBottom: '8px' }}>Mi Cuenta</h1>
-            <p style={{ color: 'var(--gray-medium)', fontSize: '14px' }}>¡Hola, {user.name}!</p>
+            <h1 style={{ fontSize: '36px', fontFamily: 'var(--display)', fontWeight: '900', marginBottom: '8px', textTransform: 'uppercase' }}>Mi Cuenta</h1>
+            <p style={{ color: 'var(--black)', fontFamily: 'var(--display)', fontWeight: '800', textTransform: 'uppercase', fontSize: '14px' }}>¡Hola, {user.name}!</p>
           </div>
 
-          <div style={{ height: '1px', backgroundColor: 'var(--gray-light)' }} />
+          <div style={{ height: '3px', backgroundColor: 'var(--black)' }} />
 
           {/* User info */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '15px' }}>
-            <p><strong>Email:</strong> {user.email}</p>
-            {user.phone && <p><strong>Teléfono:</strong> {user.phone}</p>}
-            {user.address && <p><strong>Dirección:</strong> {user.address}</p>}
-            <p><strong>Rol de cuenta:</strong> <span style={{ textTransform: 'uppercase', fontSize: '13px', fontWeight: '600', color: user.role === 'admin' ? 'var(--primary-pink)' : 'var(--dark-black)' }}>{user.role}</span></p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '15px', fontWeight: '700' }}>
+            <p><strong style={{ fontFamily: 'var(--display)', textTransform: 'uppercase' }}>Email:</strong> {user.email}</p>
+            {user.phone && <p><strong style={{ fontFamily: 'var(--display)', textTransform: 'uppercase' }}>Teléfono:</strong> {user.phone}</p>}
+            {user.address && <p><strong style={{ fontFamily: 'var(--display)', textTransform: 'uppercase' }}>Dirección:</strong> {user.address}</p>}
+            <p><strong style={{ fontFamily: 'var(--display)', textTransform: 'uppercase' }}>Rol de cuenta:</strong> <span className="badge badge-customer">{user.role}</span></p>
           </div>
 
-          <div style={{ height: '1px', backgroundColor: 'var(--gray-light)' }} />
+          <div style={{ height: '3px', backgroundColor: 'var(--black)' }} />
 
           {/* Actions */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
-            <Link to="/mi-cuenta/pedidos" className="btn-primary" style={{ textAlign: 'center', display: 'block' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '8px' }}>
+            <Link to="/mi-cuenta/pedidos" className="brutal-btn brutal-btn-black" style={{ textAlign: 'center', display: 'block' }}>
               Ver Mis Pedidos
             </Link>
             
             {user.role === 'admin' && (
-              <Link to="/admin" className="btn-secondary" style={{ textAlign: 'center', display: 'block' }}>
+              <Link to="/admin" className="brutal-btn brutal-btn-pink" style={{ textAlign: 'center', display: 'block' }}>
                 Panel de Administración
               </Link>
             )}
@@ -131,23 +132,26 @@ const Account = () => {
         /* 2. AUTHENTICATION TABS */
         <div style={{
           backgroundColor: 'var(--white)',
-          borderRadius: 'var(--border-radius)',
-          border: '1px solid var(--gray-light)',
+          borderRadius: '0px',
+          border: 'var(--border-brutal)',
+          boxShadow: 'var(--shadow-brutal-lg)',
           overflow: 'hidden'
         }}>
           {/* Tab Selector */}
-          <div style={{ display: 'flex', borderBottom: '1px solid var(--gray-light)' }}>
+          <div style={{ display: 'flex', borderBottom: 'var(--border-brutal-sm)' }}>
             <button
               onClick={() => { setActiveTab('login'); setFormError(''); }}
               style={{
                 flex: 1,
-                padding: '16px',
+                padding: '18px',
                 textAlign: 'center',
-                fontWeight: '600',
+                fontWeight: '900',
+                fontFamily: 'var(--display)',
+                textTransform: 'uppercase',
                 fontSize: '14px',
-                borderBottom: activeTab === 'login' ? '3px solid var(--primary-pink)' : 'none',
-                backgroundColor: activeTab === 'login' ? 'var(--white)' : 'var(--bg-light)',
-                color: activeTab === 'login' ? 'var(--dark-black)' : 'var(--gray-medium)'
+                borderRight: 'var(--border-brutal-sm)',
+                backgroundColor: activeTab === 'login' ? 'var(--primary-yellow)' : 'var(--white)',
+                color: 'var(--black)'
               }}
             >
               Iniciar Sesión
@@ -156,13 +160,14 @@ const Account = () => {
               onClick={() => { setActiveTab('register'); setFormError(''); }}
               style={{
                 flex: 1,
-                padding: '16px',
+                padding: '18px',
                 textAlign: 'center',
-                fontWeight: '600',
+                fontWeight: '900',
+                fontFamily: 'var(--display)',
+                textTransform: 'uppercase',
                 fontSize: '14px',
-                borderBottom: activeTab === 'register' ? '3px solid var(--primary-pink)' : 'none',
-                backgroundColor: activeTab === 'register' ? 'var(--white)' : 'var(--bg-light)',
-                color: activeTab === 'register' ? 'var(--dark-black)' : 'var(--gray-medium)'
+                backgroundColor: activeTab === 'register' ? 'var(--primary-pink)' : 'var(--white)',
+                color: 'var(--black)'
               }}
             >
               Registrarse
@@ -172,13 +177,17 @@ const Account = () => {
           <div style={{ padding: '32px' }}>
             {error || formError ? (
               <div style={{
-                padding: '10px',
-                backgroundColor: '#F8D7DA',
-                color: '#721C24',
+                padding: '12px',
+                backgroundColor: 'var(--primary-pink)',
+                color: 'var(--black)',
+                border: '2px solid var(--black)',
                 fontSize: '13px',
-                borderRadius: '4px',
+                fontFamily: 'var(--display)',
+                textTransform: 'uppercase',
+                fontWeight: '900',
+                borderRadius: '0px',
                 marginBottom: '20px',
-                fontWeight: '500'
+                boxShadow: '2px 2px 0px #000000'
               }}>
                 {formError || error}
               </div>
@@ -186,13 +195,17 @@ const Account = () => {
 
             {successMessage && (
               <div style={{
-                padding: '10px',
-                backgroundColor: '#D4EDDA',
-                color: '#155724',
+                padding: '12px',
+                backgroundColor: 'var(--primary-yellow)',
+                color: 'var(--black)',
+                border: '2px solid var(--black)',
                 fontSize: '13px',
-                borderRadius: '4px',
+                fontFamily: 'var(--display)',
+                textTransform: 'uppercase',
+                fontWeight: '900',
+                borderRadius: '0px',
                 marginBottom: '20px',
-                fontWeight: '500'
+                boxShadow: '2px 2px 0px #000000'
               }}>
                 {successMessage}
               </div>
@@ -200,48 +213,48 @@ const Account = () => {
 
             {/* LOGIN FORM */}
             {activeTab === 'login' && (
-              <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '600' }}>Email *</label>
-                  <input type="email" name="email" value={loginForm.email} onChange={handleLoginChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+              <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Email *</label>
+                  <input type="email" name="email" value={loginForm.email} onChange={handleLoginChange} required className="brutal-input" />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '600' }}>Contraseña *</label>
-                  <input type="password" name="password" value={loginForm.password} onChange={handleLoginChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Contraseña *</label>
+                  <input type="password" name="password" value={loginForm.password} onChange={handleLoginChange} required className="brutal-input" />
                 </div>
                 
-                <button type="submit" disabled={loading} className="btn-primary" style={{ width: '100%', marginTop: '12px', opacity: loading ? 0.5 : 1 }}>
-                  {loading ? 'Ingresando...' : 'Entrar'}
+                <button type="submit" disabled={loading} className="brutal-btn brutal-btn-black" style={{ width: '100%', marginTop: '12px' }}>
+                  {loading ? 'INGRESANDO...' : 'ENTRAR'}
                 </button>
               </form>
             )}
 
             {/* REGISTER FORM */}
             {activeTab === 'register' && (
-              <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '600' }}>Nombre Completo *</label>
-                  <input type="text" name="name" value={registerForm.name} onChange={handleRegisterChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+              <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Nombre Completo *</label>
+                  <input type="text" name="name" value={registerForm.name} onChange={handleRegisterChange} required className="brutal-input" />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '600' }}>Email *</label>
-                  <input type="email" name="email" value={registerForm.email} onChange={handleRegisterChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Email *</label>
+                  <input type="email" name="email" value={registerForm.email} onChange={handleRegisterChange} required className="brutal-input" />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '600' }}>Contraseña *</label>
-                  <input type="password" name="password" value={registerForm.password} onChange={handleRegisterChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Contraseña *</label>
+                  <input type="password" name="password" value={registerForm.password} onChange={handleRegisterChange} required className="brutal-input" />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '600' }}>Teléfono (Opcional)</label>
-                  <input type="tel" name="phone" value={registerForm.phone} onChange={handleRegisterChange} style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Teléfono (Opcional)</label>
+                  <input type="tel" name="phone" value={registerForm.phone} onChange={handleRegisterChange} className="brutal-input" />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: '600' }}>Dirección de Envío (Opcional)</label>
-                  <input type="text" name="address" value={registerForm.address} onChange={handleRegisterChange} style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Dirección de Envío (Opcional)</label>
+                  <input type="text" name="address" value={registerForm.address} onChange={handleRegisterChange} className="brutal-input" />
                 </div>
 
-                <button type="submit" disabled={loading} className="btn-secondary" style={{ width: '100%', marginTop: '12px', opacity: loading ? 0.5 : 1 }}>
-                  {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+                <button type="submit" disabled={loading} className="brutal-btn brutal-btn-pink" style={{ width: '100%', marginTop: '12px' }}>
+                  {loading ? 'CREANDO CUENTA...' : 'CREAR CUENTA'}
                 </button>
               </form>
             )}

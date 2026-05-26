@@ -14,20 +14,27 @@ const WhatsAppFloat = () => {
         position: 'fixed',
         bottom: '24px',
         right: '24px',
-        backgroundColor: '#25D366',
-        color: '#FFFFFF',
+        backgroundColor: 'var(--primary-pink)',
+        color: '#000000',
         width: '56px',
         height: '56px',
-        borderRadius: '50%',
+        borderRadius: '0px',
+        border: 'var(--border-brutal)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.15)',
+        boxShadow: 'var(--shadow-brutal)',
         zIndex: 999,
-        transition: 'transform 0.3s ease',
+        transition: 'var(--transition)',
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
-      onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'translate(-2px, -2px)';
+        e.currentTarget.style.boxShadow = 'var(--shadow-brutal-hover)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'none';
+        e.currentTarget.style.boxShadow = 'var(--shadow-brutal)';
+      }}
       aria-label="Contactar por WhatsApp"
     >
       <svg
@@ -36,7 +43,7 @@ const WhatsAppFloat = () => {
         viewBox="0 0 24 24"
         fill="none"
         stroke="currentColor"
-        strokeWidth="2"
+        strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       >

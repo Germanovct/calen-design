@@ -49,8 +49,10 @@ const Catalog = () => {
   };
 
   return (
-    <div className="container" style={{ padding: '40px 24px 80px 24px' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '40px', fontFamily: 'var(--serif)' }}>Nuestras Prendas</h1>
+    <div className="container" style={{ padding: '60px 24px 100px 24px' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '48px', fontFamily: 'var(--display)', fontSize: '56px', fontWeight: '900', textTransform: 'uppercase' }}>
+        Nuestras Prendas
+      </h1>
 
       <div style={{
         display: 'flex',
@@ -64,7 +66,7 @@ const Catalog = () => {
           maxWidth: '320px',
           width: '100%',
           position: 'sticky',
-          top: '100px'
+          top: '120px'
         }}>
           <Filters
             categories={categories}
@@ -84,36 +86,45 @@ const Catalog = () => {
           width: '100%'
         }}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '64px 0', color: 'var(--gray-medium)' }}>
-              Cargando catálogo de prendas...
+            <div style={{ textAlign: 'center', padding: '64px 0', fontFamily: 'var(--display)', fontWeight: '800', fontSize: '18px' }}>
+              CARGANDO CATÁLOGO DE PRENDAS...
             </div>
           ) : (
             <>
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-                gap: '32px'
+                gap: '40px'
               }}>
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                {products.map((product, idx) => (
+                  <div 
+                    key={product.id}
+                    style={{
+                      transform: idx % 2 === 0 ? 'translateY(12px)' : 'none',
+                      marginTop: idx % 2 !== 0 ? '12px' : '0px'
+                    }}
+                  >
+                    <ProductCard product={product} />
+                  </div>
                 ))}
               </div>
 
               {products.length === 0 && (
                 <div style={{
                   textAlign: 'center',
-                  padding: '80px 0',
-                  color: 'var(--gray-medium)',
-                  backgroundColor: 'var(--white)',
-                  borderRadius: 'var(--border-radius)',
-                  border: '1px solid var(--gray-light)',
+                  padding: '80px 24px',
+                  color: 'var(--black)',
+                  backgroundColor: 'var(--primary-pink)',
+                  borderRadius: '0px',
+                  border: 'var(--border-brutal)',
+                  boxShadow: 'var(--shadow-brutal)',
                   width: '100%'
                 }}>
-                  <p style={{ fontSize: '18px', fontWeight: '500', marginBottom: '8px' }}>
+                  <p style={{ fontSize: '20px', fontWeight: '900', fontFamily: 'var(--display)', textTransform: 'uppercase', marginBottom: '16px' }}>
                     No se encontraron prendas que coincidan.
                   </p>
-                  <button onClick={handleClearFilters} className="btn-primary" style={{ marginTop: '12px' }}>
-                    Ver todos los productos
+                  <button onClick={handleClearFilters} className="brutal-btn brutal-btn-black">
+                    VER TODAS LAS PRENDAS
                   </button>
                 </div>
               )}

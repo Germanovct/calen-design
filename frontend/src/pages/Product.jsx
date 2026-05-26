@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
 import { useCartStore } from '../store/cartStore';
 import VariantSelector from '../components/VariantSelector';
+import { motion } from 'framer-motion';
 
 const Product = () => {
   const { id } = useParams();
@@ -60,11 +61,11 @@ const Product = () => {
   const displayImage = activeImage || defaultImage;
 
   return (
-    <div className="container" style={{ padding: '64px 24px' }}>
+    <div className="container" style={{ padding: '60px 24px 100px 24px' }}>
       <div style={{
         display: 'flex',
         flexWrap: 'wrap',
-        gap: '48px',
+        gap: '64px',
         alignItems: 'flex-start'
       }}>
         {/* GALERÍA DE IMÁGENES */}
@@ -72,7 +73,7 @@ const Product = () => {
           flex: '1 1 450px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '16px'
+          gap: '20px'
         }}>
           <img
             src={displayImage}
@@ -81,9 +82,9 @@ const Product = () => {
               width: '100%',
               height: '520px',
               objectFit: 'cover',
-              borderRadius: 'var(--border-radius)',
-              border: '1px solid var(--gray-light)',
-              boxShadow: 'var(--shadow-sm)'
+              borderRadius: '0px',
+              border: 'var(--border-brutal)',
+              boxShadow: 'var(--shadow-brutal-lg)'
             }}
           />
 
@@ -96,9 +97,11 @@ const Product = () => {
                   style={{
                     width: '80px',
                     height: '100px',
-                    borderRadius: '4px',
+                    borderRadius: '0px',
                     overflow: 'hidden',
-                    border: activeImage === img ? '2px solid var(--dark-black)' : '1px solid var(--gray-light)',
+                    border: activeImage === img ? 'var(--border-brutal)' : '2px solid var(--black)',
+                    boxShadow: activeImage === img ? '3px 3px 0px #000000' : 'none',
+                    transform: activeImage === img ? 'translate(-2px, -2px)' : 'none',
                     padding: 0
                   }}
                 >
@@ -109,25 +112,31 @@ const Product = () => {
           )}
         </div>
 
-        {/* DETALLE Y COMPRA */}
+        {/* DETALLE Y COMPRA (Columna rota, desplazada verticalmente y enmarcada) */}
         <div style={{
           flex: '1 1 400px',
           display: 'flex',
           flexDirection: 'column',
-          gap: '24px'
+          gap: '24px',
+          border: 'var(--border-brutal)',
+          padding: '32px',
+          backgroundColor: 'var(--white)',
+          boxShadow: 'var(--shadow-brutal-lg)',
+          marginTop: '40px', // Broken offset
+          borderRadius: '0px'
         }}>
           <div>
-            <h1 style={{ fontSize: '36px', marginBottom: '8px', fontFamily: 'var(--serif)' }}>
+            <h1 style={{ fontSize: '40px', lineHeight: '1.1', marginBottom: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>
               {currentProduct.name}
             </h1>
-            <p style={{ fontSize: '24px', fontWeight: '600', color: 'var(--dark-black)' }}>
+            <p style={{ fontSize: '32px', fontWeight: '900', fontFamily: 'var(--display)', color: 'var(--primary-pink)' }}>
               ${parseFloat(currentProduct.price).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </p>
           </div>
 
           <div style={{
-            height: '1px',
-            backgroundColor: 'var(--gray-light)'
+            height: '4px',
+            backgroundColor: 'var(--black)'
           }} />
 
           {/* SELECTOR DE VARIANTES */}
@@ -146,36 +155,39 @@ const Product = () => {
               }}
             />
           ) : (
-            <div style={{ color: 'red', fontWeight: '500' }}>Sin stock disponible temporalmente.</div>
+            <div style={{ color: '#FF0000', fontWeight: '900', fontFamily: 'var(--display)', textTransform: 'uppercase' }}>Sin stock disponible temporalmente.</div>
           )}
 
           {/* Muestra información de stock una vez seleccionado */}
           {selectedSize && selectedColor && matchedVariant && (
-            <span style={{ fontSize: '13px', color: matchedVariant.stock > 0 ? 'var(--gray-medium)' : 'red' }}>
+            <span style={{ fontSize: '13px', fontFamily: 'var(--display)', fontWeight: '800', color: matchedVariant.stock > 0 ? 'var(--black)' : '#FF0000', textTransform: 'uppercase' }}>
               {matchedVariant.stock > 0 
-                ? `Disponibles en stock: ${matchedVariant.stock} unidades` 
-                : 'Agotado en esta combinación'}
+                ? `DISPONIBLES EN STOCK: ${matchedVariant.stock} UNIDADES` 
+                : 'AGOTADO EN ESTA COMBINACIÓN'}
             </span>
           )}
 
           {/* BOTÓN AGREGAR AL CARRITO */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
             <button
               onClick={handleAddToCart}
               disabled={isAddToCartDisabled}
-              className={isAddToCartDisabled ? 'btn-outline' : 'btn-secondary'}
+              className="brutal-btn brutal-btn-black"
               style={{
                 width: '100%',
-                opacity: isAddToCartDisabled ? 0.5 : 1,
-                cursor: isAddToCartDisabled ? 'not-allowed' : 'pointer',
-                textAlign: 'center'
+                padding: '20px',
+                fontSize: '18px',
+                fontFamily: 'var(--display)',
+                fontWeight: '900',
+                letterSpacing: '1px',
+                cursor: isAddToCartDisabled ? 'not-allowed' : 'pointer'
               }}
             >
               {!selectedSize || !selectedColor 
-                ? 'Seleccionar Talle y Color' 
+                ? 'SELECCIONAR TALLE Y COLOR' 
                 : matchedVariant && matchedVariant.stock > 0 
-                  ? 'Agregar al Carrito' 
-                  : 'Sin Stock'}
+                  ? 'AGREGAR AL CARRITO' 
+                  : 'SIN STOCK'}
             </button>
 
             {successMessage && (
@@ -184,13 +196,16 @@ const Product = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
                 style={{
-                  padding: '12px',
-                  backgroundColor: '#D4EDDA',
-                  color: '#155724',
-                  borderRadius: '4px',
+                  padding: '14px',
+                  backgroundColor: 'var(--primary-yellow)',
+                  color: 'var(--black)',
+                  border: '2px solid var(--black)',
                   fontSize: '13px',
+                  fontFamily: 'var(--display)',
                   textAlign: 'center',
-                  fontWeight: '500'
+                  fontWeight: '900',
+                  textTransform: 'uppercase',
+                  boxShadow: '3px 3px 0px #000000'
                 }}
               >
                 ¡Agregado al carrito con éxito!
@@ -199,18 +214,20 @@ const Product = () => {
           </div>
 
           <div style={{
-            height: '1px',
-            backgroundColor: 'var(--gray-light)'
+            height: '2px',
+            backgroundColor: 'var(--black)'
           }} />
 
           {/* DESCRIPCIÓN */}
           <div>
-            <h3 style={{ fontSize: '16px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px', fontWeight: '600' }}>
+            <h3 style={{ fontSize: '14px', fontFamily: 'var(--display)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '12px', fontWeight: '900' }}>
               Descripción
             </h3>
             <p style={{
-              fontSize: '15px',
-              color: 'var(--gray-medium)',
+              fontSize: '14px',
+              fontFamily: 'var(--sans)',
+              fontWeight: '500',
+              color: 'var(--black)',
               lineHeight: '1.8',
               whiteSpace: 'pre-line'
             }}>

@@ -118,20 +118,24 @@ const Checkout = () => {
   const grandTotal = subtotal + shippingCost;
 
   return (
-    <div className="container" style={{ padding: '40px 24px 80px 24px', maxWidth: '800px' }}>
-      <h1 style={{ textAlign: 'center', marginBottom: '16px', fontFamily: 'var(--serif)' }}>Finalizar Compra</h1>
+    <div className="container" style={{ padding: '60px 24px 100px 24px', maxWidth: '800px', backgroundColor: '#FFFFFF' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '24px', fontFamily: 'var(--display)', fontSize: '48px', fontWeight: '900', textTransform: 'uppercase' }}>Finalizar Compra</h1>
       
       <CheckoutStepper currentStep={step} />
 
       {formError && (
         <div style={{
-          padding: '12px',
-          backgroundColor: '#F8D7DA',
-          color: '#721C24',
-          borderRadius: 'var(--border-radius)',
-          marginBottom: '24px',
+          padding: '16px',
+          backgroundColor: 'var(--primary-pink)',
+          color: '#000000',
+          border: '3px solid #000000',
+          borderRadius: '0px',
+          boxShadow: 'var(--shadow-brutal)',
+          marginBottom: '32px',
           fontSize: '14px',
-          fontWeight: '500'
+          fontWeight: '900',
+          fontFamily: 'var(--display)',
+          textTransform: 'uppercase'
         }}>
           {formError}
         </div>
@@ -142,42 +146,45 @@ const Checkout = () => {
         <form onSubmit={handleStep1Submit} style={{
           backgroundColor: 'var(--white)',
           padding: '32px',
-          borderRadius: 'var(--border-radius)',
-          border: '1px solid var(--gray-light)',
+          borderRadius: '0px',
+          border: 'var(--border-brutal)',
+          boxShadow: 'var(--shadow-brutal-lg)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '20px'
+          gap: '24px'
         }}>
-          <h2 style={{ fontSize: '20px', fontFamily: 'var(--serif)', marginBottom: '8px' }}>Dirección de Envío</h2>
+          <h2 style={{ fontSize: '24px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', borderBottom: '3px solid #000000', paddingBottom: '12px', marginBottom: '8px' }}>
+            Dirección de Envío
+          </h2>
           
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
             <div style={{ flex: '1 1 100%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '600' }}>Nombre Completo *</label>
-              <input type="text" name="fullName" value={shippingForm.fullName} onChange={handleInputChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+              <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Nombre Completo *</label>
+              <input type="text" name="fullName" value={shippingForm.fullName} onChange={handleInputChange} required className="brutal-input" />
             </div>
             <div style={{ flex: '1 1 45%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '600' }}>Email *</label>
-              <input type="email" name="email" value={shippingForm.email} onChange={handleInputChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+              <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Email *</label>
+              <input type="email" name="email" value={shippingForm.email} onChange={handleInputChange} required className="brutal-input" />
             </div>
             <div style={{ flex: '1 1 45%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '600' }}>Teléfono de Contacto *</label>
-              <input type="tel" name="phone" value={shippingForm.phone} onChange={handleInputChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+              <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Teléfono de Contacto *</label>
+              <input type="tel" name="phone" value={shippingForm.phone} onChange={handleInputChange} required className="brutal-input" />
             </div>
             <div style={{ flex: '1 1 100%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '600' }}>Calle y Altura (Dirección) *</label>
-              <input type="text" name="address" value={shippingForm.address} onChange={handleInputChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+              <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Calle y Altura (Dirección) *</label>
+              <input type="text" name="address" value={shippingForm.address} onChange={handleInputChange} required className="brutal-input" />
             </div>
             <div style={{ flex: '1 1 45%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '600' }}>Ciudad / Localidad *</label>
-              <input type="text" name="city" value={shippingForm.city} onChange={handleInputChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+              <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Ciudad / Localidad *</label>
+              <input type="text" name="city" value={shippingForm.city} onChange={handleInputChange} required className="brutal-input" />
             </div>
             <div style={{ flex: '1 1 45%', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: '600' }}>Código Postal *</label>
-              <input type="text" name="zipCode" value={shippingForm.zipCode} onChange={handleInputChange} required style={{ padding: '10px', border: '1px solid var(--gray-light)', borderRadius: '4px' }} />
+              <label style={{ fontSize: '12px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Código Postal *</label>
+              <input type="text" name="zipCode" value={shippingForm.zipCode} onChange={handleInputChange} required className="brutal-input" />
             </div>
           </div>
 
-          <button type="submit" className="btn-primary" style={{ marginTop: '16px', alignSelf: 'flex-end' }}>
+          <button type="submit" className="brutal-btn brutal-btn-black" style={{ marginTop: '16px', alignSelf: 'flex-end' }}>
             Continuar al Resumen
           </button>
         </form>
@@ -188,66 +195,67 @@ const Checkout = () => {
         <div style={{
           backgroundColor: 'var(--white)',
           padding: '32px',
-          borderRadius: 'var(--border-radius)',
-          border: '1px solid var(--gray-light)',
+          borderRadius: '0px',
+          border: 'var(--border-brutal)',
+          boxShadow: 'var(--shadow-brutal-lg)',
           display: 'flex',
           flexDirection: 'column',
           gap: '24px'
         }}>
           <div>
-            <h2 style={{ fontSize: '20px', fontFamily: 'var(--serif)', marginBottom: '16px' }}>Resumen del Pedido</h2>
+            <h2 style={{ fontSize: '24px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', borderBottom: '3px solid #000000', paddingBottom: '12px', marginBottom: '16px' }}>Resumen del Pedido</h2>
             
             {/* Items */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {items.map((item) => (
-                <div key={item.variant.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
-                  <span>{item.product.name} (Talle: {item.variant.size} · {item.variant.color}) x{item.quantity}</span>
-                  <span style={{ fontWeight: '600' }}>${(item.product.price * item.quantity).toLocaleString('es-AR')}</span>
+                <div key={item.variant.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '700' }}>
+                  <span>{item.product.name} (TALLE: {item.variant.size} · {item.variant.color}) x{item.quantity}</span>
+                  <span style={{ fontWeight: '900', fontFamily: 'var(--display)' }}>${(item.product.price * item.quantity).toLocaleString('es-AR')}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div style={{ height: '1px', backgroundColor: 'var(--gray-light)' }} />
+          <div style={{ height: '3px', backgroundColor: '#000000' }} />
 
           {/* Shipping Address Recap */}
           <div>
-            <h3 style={{ fontSize: '14px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', color: 'var(--gray-medium)' }}>Datos de Envío</h3>
-            <p style={{ fontSize: '15px' }}><strong>{shippingForm.fullName}</strong></p>
-            <p style={{ fontSize: '14px', color: 'var(--gray-medium)' }}>
+            <h3 style={{ fontSize: '13px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', color: 'var(--black)' }}>Datos de Envío</h3>
+            <p style={{ fontSize: '16px', fontWeight: '800' }}><strong>{shippingForm.fullName}</strong></p>
+            <p style={{ fontSize: '14px', color: '#000000', fontWeight: '600' }}>
               {shippingForm.address}, {shippingForm.city} (CP: {shippingForm.zipCode}) · Tel: {shippingForm.phone}
             </p>
           </div>
 
-          <div style={{ height: '1px', backgroundColor: 'var(--gray-light)' }} />
+          <div style={{ height: '3px', backgroundColor: '#000000' }} />
 
           {/* Pricing Recap */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '700' }}>
               <span>Subtotal</span>
-              <span>${subtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+              <span style={{ fontWeight: '900' }}>${subtotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: '700' }}>
               <span>Costo de Envío</span>
-              <span>${shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+              <span style={{ fontWeight: '900' }}>${shippingCost.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', fontWeight: '600', marginTop: '8px' }}>
-              <span>Total Final</span>
-              <span>${grandTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '24px', fontFamily: 'var(--display)', fontWeight: '900', marginTop: '8px', borderTop: '2px solid #000000', paddingTop: '12px' }}>
+              <span>TOTAL FINAL</span>
+              <span style={{ color: 'var(--primary-pink)' }}>${grandTotal.toLocaleString('es-AR', { minimumFractionDigits: 2 })}</span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
-            <button onClick={() => setStep(1)} className="btn-outline">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px', flexWrap: 'wrap', gap: '12px' }}>
+            <button onClick={() => setStep(1)} className="brutal-btn brutal-btn-pink">
               Modificar Dirección
             </button>
             <button 
               onClick={handleOrderExecution} 
               disabled={orderLoading}
-              className="btn-secondary"
-              style={{ opacity: orderLoading ? 0.5 : 1, cursor: orderLoading ? 'not-allowed' : 'pointer' }}
+              className="brutal-btn brutal-btn-black"
+              style={{ cursor: orderLoading ? 'not-allowed' : 'pointer' }}
             >
-              {orderLoading ? 'Registrando...' : 'Confirmar y Pagar'}
+              {orderLoading ? 'REGISTRANDO...' : 'CONFIRMAR Y PAGAR'}
             </button>
           </div>
         </div>
@@ -258,24 +266,25 @@ const Checkout = () => {
         <div style={{
           backgroundColor: 'var(--white)',
           padding: '48px 32px',
-          borderRadius: 'var(--border-radius)',
-          border: '1px solid var(--gray-light)',
+          borderRadius: '0px',
+          border: 'var(--border-brutal)',
+          boxShadow: 'var(--shadow-brutal-lg)',
           textAlign: 'center',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '20px'
+          gap: '24px'
         }}>
           <div style={{
-            width: '48px',
-            height: '48px',
+            width: '56px',
+            height: '56px',
             borderRadius: '50%',
-            border: '3px solid var(--primary-pink)',
-            borderTopColor: 'var(--dark-black)',
-            animation: 'spin 1s linear infinite'
+            border: '4px solid var(--primary-pink)',
+            borderTopColor: 'var(--black)',
+            animation: 'spin 0.8s linear infinite'
           }} />
-          <h2 style={{ fontFamily: 'var(--serif)' }}>Redirigiéndote a Mercado Pago</h2>
-          <p style={{ color: 'var(--gray-medium)', maxWidth: '400px' }}>
+          <h2 style={{ fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase' }}>Redirigiéndote a Mercado Pago</h2>
+          <p style={{ color: '#000000', fontWeight: '600', maxWidth: '400px' }}>
             Estamos abriendo la pasarela de pago segura de Mercado Pago. Si no se abre automáticamente, hacé click en el botón de abajo.
           </p>
           
