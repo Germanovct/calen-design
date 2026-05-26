@@ -124,3 +124,8 @@ def get_me(current_user: dict = Depends(get_current_user)):
         address=current_user.get("address"),
         role=current_user.get("role", "user")
     )
+
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie(key="access_token")
+    return {"message": "Sesión cerrada correctamente"}

@@ -14,6 +14,16 @@ router = APIRouter()
 # PRODUCT ENDPOINTS
 # ==========================================
 
+@router.get("/categories")
+def get_categories(db: Client = Depends(get_db)):
+    if not db:
+        raise HTTPException(status_code=500, detail="Database client not initialized")
+    try:
+        res = db.table("categories").select("*").execute()
+        return res.data
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error al obtener categorías: {str(e)}")
+
 @router.get("/", response_model=List[ProductResponse])
 def get_products(
     category: Optional[str] = None,
