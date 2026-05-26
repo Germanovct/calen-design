@@ -12,6 +12,8 @@ app = FastAPI(
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:5174",
+    "http://127.0.0.1:5174",
     "https://calen-design.netlify.app", # URL del frontend en Netlify (a ajustar cuando se asocie el dominio)
 ]
 
