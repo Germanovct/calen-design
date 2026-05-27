@@ -5,7 +5,7 @@ import { useAuth } from './hooks/useAuth';
 // Layout Components
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import WhatsAppFloat from './components/WhatsAppFloat';
+
 
 // Pages
 import Home from './pages/Home';
@@ -44,8 +44,6 @@ function App() {
         </Routes>
       </main>
 
-      {/* Botón flotante de WhatsApp */}
-      <WhatsAppFloat />
 
       {/* Pie de Página */}
       <Footer />

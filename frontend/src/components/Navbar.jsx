@@ -20,7 +20,7 @@ const Navbar = () => {
     <>
       <header style={{
         backgroundColor: '#0A0A0A',
-        borderBottom: '1px solid #1A1A1A',
+        borderBottom: '2px solid #FF2D2D',
         position: 'sticky',
         top: 0,
         zIndex: 99,
