@@ -12,7 +12,6 @@ const categories = [
   { name: 'Abrigos',  slug: 'abrigos',  image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=1200&auto=format&fit=crop' },
 ];
 
-const TICKER_TEXT = 'ENVÍOS A TODO EL PAÍS — DISEÑO INDEPENDIENTE — COL. 01 2026 — HECHO EN ARGENTINA — ';
 
 const Home = () => {
   const { products, fetchProducts, loading } = useProducts();
@@ -168,53 +167,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* ════════════════════════════════════════
-          MARQUEE / TICKER ROJO
-      ════════════════════════════════════════ */}
-      <div style={{
-        backgroundColor: '#FF2D2D',
-        height: '44px',
-        overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        position: 'relative',
-        borderTop: 'none',
-        borderBottom: 'none',
-      }}>
-        <style>{`
-          @keyframes marquee-scroll {
-            0%   { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-          }
-          .marquee-track {
-            display: flex;
-            white-space: nowrap;
-            animation: marquee-scroll 30s linear infinite;
-            will-change: transform;
-          }
-          .marquee-item {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: #FFFFFF;
-            padding: 0 0;
-          }
-          .marquee-sep {
-            color: rgba(255,255,255,0.5);
-            margin: 0 16px;
-          }
-        `}</style>
-        {/* Duplicamos el texto para que el loop sea infinito y seamless */}
-        <div className="marquee-track">
-          {[...Array(8)].map((_, i) => (
-            <span key={i} className="marquee-item">
-              {TICKER_TEXT}
-            </span>
-          ))}
-        </div>
-      </div>
 
       {/* ════════════════════════════════════════
           CATEGORÍAS — GRILLA OSCURA
