@@ -1,44 +1,52 @@
 import React from 'react';
 
-const TICKER_TEXT = 'ENVÍOS A TODO EL PAÍS — PAGOS EN CUOTAS CON MERCADO PAGO — DISEÑO INDEPENDIENTE — HECHO EN ARGENTINA — DEVOLUCIONES SIN COSTO — ';
-
 const BenefitsBar = () => (
   <div style={{
     backgroundColor: '#FF2D2D',
     height: '36px',
-    overflow: 'hidden',
     display: 'flex',
     alignItems: 'center',
+    justifyContent: 'center',
     position: 'sticky',
     top: 0,
     zIndex: 100, /* encima del navbar */
     flexShrink: 0,
+    padding: '0 16px',
+    boxSizing: 'border-box',
   }}>
     <style>{`
-      @keyframes benefits-scroll {
-        0%   { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-      }
-      .benefits-track {
-        display: flex;
-        white-space: nowrap;
-        animation: benefits-scroll 40s linear infinite;
-        will-change: transform;
-      }
-      .benefits-item {
+      .benefits-text {
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 12px;
+        font-size: 13px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.16em;
         color: #FFFFFF;
-        padding: 0 2px;
+        text-align: center;
+        white-space: nowrap;
+      }
+      .benefits-mobile {
+        display: none;
+      }
+      .benefits-desktop {
+        display: block;
+      }
+      @media (max-width: 768px) {
+        .benefits-text {
+          font-size: 11px;
+        }
+        .benefits-desktop {
+          display: none;
+        }
+        .benefits-mobile {
+          display: block;
+        }
       }
     `}</style>
-    <div className="benefits-track">
-      {[...Array(8)].map((_, i) => (
-        <span key={i} className="benefits-item">{TICKER_TEXT}</span>
-      ))}
+    <div className="benefits-text benefits-desktop">
+      ★ ENVÍOS A TODO EL PAÍS ★ PAGOS EN CUOTAS CON MERCADO PAGO ★ DEVOLUCIONES SIN COSTO ★
+    </div>
+    <div className="benefits-text benefits-mobile">
+      ★ ENVÍOS A TODO EL PAÍS ★ CUOTAS SIN INTERÉS ★
     </div>
   </div>
 );
