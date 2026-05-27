@@ -22,7 +22,7 @@ const BenefitsBar = () => (
       .benefits-track {
         display: flex;
         white-space: nowrap;
-        animation: benefits-scroll 20s linear infinite;
+        animation: benefits-scroll 40s linear infinite;
         will-change: transform;
       }
       .benefits-item {
