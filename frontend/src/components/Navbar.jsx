@@ -22,7 +22,7 @@ const Navbar = () => {
         backgroundColor: '#0A0A0A',
         borderBottom: '2px solid #FF2D2D',
         position: 'sticky',
-        top: 0,
+        top: '36px', /* debajo de la barra de beneficios */
         zIndex: 99,
       }}>
         <div className="container" style={{
@@ -64,6 +64,7 @@ const Navbar = () => {
           <nav style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             <Link to="/" className="nav-link">INICIO</Link>
             <Link to="/productos" className="nav-link">CATÁLOGO</Link>
+            <Link to="/archivo" className="nav-link">ARCHIVO</Link>
 
             {user ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
