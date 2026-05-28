@@ -20,6 +20,7 @@ import FAQ from './pages/FAQ';
 import ShippingPolicy from './pages/ShippingPolicy';
 import Returns from './pages/Returns';
 import Remorse from './pages/Remorse';
+import { CheckoutSuccess, CheckoutFailure, CheckoutPending } from './pages/CheckoutResult';
 
 import './App.css';
 
@@ -53,6 +54,9 @@ function App() {
           <Route path="/politicas-de-envio"        element={<ShippingPolicy />} />
           <Route path="/cambios-y-devoluciones"    element={<Returns />} />
           <Route path="/boton-de-arrepentimiento"  element={<Remorse />} />
+          <Route path="/checkout/success"           element={<CheckoutSuccess />} />
+          <Route path="/checkout/failure"           element={<CheckoutFailure />} />
+          <Route path="/checkout/pending"           element={<CheckoutPending />} />
         </Routes>
       </main>
 

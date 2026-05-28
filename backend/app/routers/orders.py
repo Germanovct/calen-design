@@ -216,21 +216,36 @@ async def create_payment_preference(
             "currency_id": "ARS"
         })
 
-    # 3. Armar payload de preferencia
-    preference_payload = {
-        "items": mp_items,
-        "back_urls": {
+    # 3. Detectar si el token es de sandbox para usar las URLs correctas
+    is_sandbox = "TEST" in settings.MP_ACCESS_TOKEN.upper() or settings.MP_ACCESS_TOKEN.startswith("APP_USR-2726")
+    
+    if is_sandbox:
+        # En sandbox: back_urls apuntan al localhost del frontend
+        back_urls = {
+            "success": "http://localhost:5173/checkout/success",
+            "failure": "http://localhost:5173/checkout/failure",
+            "pending": "http://localhost:5173/checkout/pending"
+        }
+    else:
+        # En producción: back_urls apuntan al dominio real
+        back_urls = {
             "success": "https://calen-design.netlify.app/checkout/success",
             "failure": "https://calen-design.netlify.app/checkout/failure",
             "pending": "https://calen-design.netlify.app/checkout/pending"
-        },
-        "auto_return": "approved",
-        # El webhook apuntará al backend en producción
-        "notification_url": "https://calen-backend.onrender.com/api/orders/webhooks/mp",
+        }
+
+    # 4. Armar payload de preferencia
+    preference_payload = {
+        "items": mp_items,
+        "back_urls": back_urls,
+        # auto_return solo funciona con HTTPS válidas (no en localhost)
+        **({}  if is_sandbox else {"auto_return": "approved"}),
+        # Webhook: solo funciona en producción (MP no puede alcanzar localhost)
+        **({}  if is_sandbox else {"notification_url": "https://calen-backend.onrender.com/api/orders/webhooks/mp"}),
         "external_reference": id
     }
 
-    # 4. Llamar a la API de Mercado Pago
+    # 5. Llamar a la API de Mercado Pago
     try:
         headers = {
             "Authorization": f"Bearer {settings.MP_ACCESS_TOKEN}",
@@ -240,7 +255,8 @@ async def create_payment_preference(
             mp_res = await client.post(
                 "https://api.mercadopago.com/checkout/preferences",
                 json=preference_payload,
-                headers=headers
+                headers=headers,
+                timeout=15.0
             )
             
         if mp_res.status_code != 201:
@@ -251,9 +267,12 @@ async def create_payment_preference(
             
         pref_data = mp_res.json()
         preference_id = pref_data["id"]
-        init_point = pref_data["init_point"]
+        # En sandbox usar sandbox_init_point para que redirija al entorno de pruebas
+        init_point = pref_data["sandbox_init_point"] if is_sandbox else pref_data["init_point"]
         
-        # 5. Guardar el ID de preferencia en la orden
+        print(f"[*] Preferencia MP creada: {preference_id} | Sandbox: {is_sandbox} | URL: {init_point}")
+        
+        # 6. Guardar el ID de preferencia en la orden
         db.table("orders").update({"mp_payment_id": preference_id}).eq("id", id).execute()
         
         return PaymentPreferenceResponse(preference_id=preference_id, init_point=init_point)

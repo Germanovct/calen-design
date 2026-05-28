@@ -188,6 +188,19 @@ Proveedor: **Resend** (mismo patrón DTS&Dog)
 
 ---
 
+## Fase 11 — Envíos express AMBA con Uber Direct (futuro)
+
+- [ ] Registrarse como partner en developer.uber.com → Uber Direct API
+- [ ] Integrar cotización de envío express same-day solo para CABA y GBA
+- [ ] En el checkout: mostrar opción "Envío Express AMBA - Hoy" con precio dinámico calculado por distancia via Uber Direct
+- [ ] Agregar margen sobre el costo de Uber Direct
+- [ ] Restricción: solo disponible para códigos postales de CABA y GBA
+- [ ] Peso mínimo del paquete: 2kg (verificar con Cande embalaje)
+- [ ] Pendiente: aprobación de acceso a Uber Direct API
+
+---
+
+
 ## Categorías actuales (Tienda Nube)
 
 | Categoría | Slug |

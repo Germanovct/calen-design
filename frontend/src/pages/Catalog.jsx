@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
 import Filters from '../components/Filters';
@@ -8,27 +8,36 @@ const Catalog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { products, categories, fetchProducts, fetchCategories, loading } = useProducts();
 
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category'));
-  const [selectedSize, setSelectedSize] = useState(searchParams.get('size'));
-  const [selectedColor, setSelectedColor] = useState(searchParams.get('color'));
+  // Inicializar filtros desde la URL solo en el primer render
+  const [selectedCategory, setSelectedCategory] = useState(() => searchParams.get('category'));
+  const [selectedSize, setSelectedSize] = useState(() => searchParams.get('size'));
+  const [selectedColor, setSelectedColor] = useState(() => searchParams.get('color'));
 
+  // Ref para evitar que setSearchParams dispare re-lecturas de URL
+  const isInternalUpdate = useRef(false);
+
+  // Cargar categorías una sola vez al montar
   useEffect(() => { fetchCategories(); }, []);
 
+  // Disparar fetchProducts cada vez que cambian los filtros y sincronizar URL
   useEffect(() => {
-    const filters = { category: selectedCategory, size: selectedSize, color: selectedColor, active: true };
+    isInternalUpdate.current = true;
+    const filters = {};
+    if (selectedCategory) filters.category = selectedCategory;
+    if (selectedSize) filters.size = selectedSize;
+    if (selectedColor) filters.color = selectedColor;
+
     fetchProducts(filters);
+
     const params = {};
     if (selectedCategory) params.category = selectedCategory;
     if (selectedSize) params.size = selectedSize;
     if (selectedColor) params.color = selectedColor;
-    setSearchParams(params);
-  }, [selectedCategory, selectedSize, selectedColor]);
+    setSearchParams(params, { replace: true });
 
-  useEffect(() => {
-    setSelectedCategory(searchParams.get('category'));
-    setSelectedSize(searchParams.get('size'));
-    setSelectedColor(searchParams.get('color'));
-  }, [searchParams]);
+    // Liberar la bandera en el siguiente tick
+    setTimeout(() => { isInternalUpdate.current = false; }, 0);
+  }, [selectedCategory, selectedSize, selectedColor]);
 
   const handleClearFilters = () => {
     setSelectedCategory(null);
