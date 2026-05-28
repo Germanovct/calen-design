@@ -46,8 +46,8 @@ const Field = ({ label, required, type = 'text', name, value, onChange, placehol
         style={{
           width: '100%',
           padding: rightSlot ? '14px 48px 14px 16px' : '14px 16px',
-          backgroundColor: '#111',
-          border: '1px solid #222',
+          backgroundColor: '#1A1A1A',
+          border: '1px solid #333',
           color: '#FFFFFF',
           fontFamily: "'Space Grotesk', sans-serif",
           fontSize: '15px',
@@ -57,7 +57,7 @@ const Field = ({ label, required, type = 'text', name, value, onChange, placehol
           transition: 'border-color 0.2s',
         }}
         onFocus={e => { e.target.style.borderColor = '#FFFFFF'; }}
-        onBlur={e => { e.target.style.borderColor = '#222'; }}
+        onBlur={e => { e.target.style.borderColor = '#333'; }}
       />
       {rightSlot && (
         <div style={{
