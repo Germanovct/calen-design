@@ -34,3 +34,7 @@ app.include_router(shipping.router, prefix="/api/shipping", tags=["Shipping"])
 @app.get("/")
 def read_root():
     return {"status": "healthy", "service": "Calen Design API"}
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
