@@ -185,6 +185,14 @@ Proveedor: **Resend** (mismo patrón DTS&Dog)
 - [ ] Security headers en `netlify.toml`
 - [ ] Smoke test completo (compra end-to-end)
 - [ ] Dar de baja Tienda Nube (cuando Cande confirme)
+- [ ] Pendientes para cuando se compre el dominio `calendesign.com.ar`:
+  - [ ] Configurar EMAIL_FROM=hola@calendesign.com.ar en Render
+  - [ ] Crear cuenta en resend.com y cargar RESEND_API_KEY en Render
+  - [ ] Generar par RSA y cargar JWT_PRIVATE_KEY / JWT_PUBLIC_KEY en Render
+  - [ ] Configurar webhook MP en developers.mercadopago.com apuntando a https://calen-design.onrender.com/webhooks/mp
+  - [ ] Apuntar dominio calendesign.com.ar a Netlify
+  - [ ] Cambiar VITE_API_URL si el backend cambia de dominio
+  - [ ] Activar credenciales de producción MP (reemplazar sandbox por producción)
 
 ---
 
