@@ -27,20 +27,24 @@ const VariantSelector = ({ variants, selectedSize, onSelectSize, selectedColor, 
         <div>
           <span style={{
             fontSize: '11px',
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "var(--display)",
             fontWeight: 700,
             textTransform: 'uppercase',
             letterSpacing: '0.18em',
             display: 'block',
             marginBottom: '12px',
-            color: '#555',
+            color: 'var(--gray-text)',
           }}>
             TALLE
             {selectedSize && (
-              <span style={{ color: '#FFFFFF', marginLeft: '8px' }}>— {selectedSize}</span>
+              <span style={{ color: 'var(--white)', marginLeft: '8px' }}>— {selectedSize}</span>
             )}
           </span>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          <div 
+            role="radiogroup" 
+            aria-label="Seleccionar talle" 
+            style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}
+          >
             {allSizes.map((size) => {
               const available = isSizeAvailable(size);
               const active    = selectedSize === size;
@@ -49,34 +53,37 @@ const VariantSelector = ({ variants, selectedSize, onSelectSize, selectedColor, 
                   key={size}
                   onClick={() => onSelectSize(active ? null : size)}
                   disabled={!available}
+                  role="radio"
+                  aria-checked={active}
+                  aria-label={`Talle ${size}${!available ? ' (Agotado)' : ''}`}
                   style={{
                     width: '44px',
                     height: '44px',
-                    border: active ? '1px solid #FFFFFF' : '1px solid #2A2A2A',
+                    border: active ? '1px solid var(--white)' : '1px solid var(--gray-mid)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '12px',
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontFamily: "var(--display)",
                     fontWeight: 900,
-                    backgroundColor: active ? '#FFFFFF' : 'transparent',
-                    color: active ? '#000000' : available ? '#FFFFFF' : '#333',
+                    backgroundColor: active ? 'var(--white)' : 'transparent',
+                    color: active ? 'var(--black)' : available ? 'var(--white)' : 'var(--gray-mid)',
                     opacity: available ? 1 : 0.3,
                     cursor: available ? 'pointer' : 'not-allowed',
                     textTransform: 'uppercase',
                     letterSpacing: '0.06em',
-                    transition: 'all 0.15s ease',
+                    transition: 'var(--transition)',
                     position: 'relative',
                   }}
                   onMouseEnter={(e) => {
                     if (available && !active) {
-                      e.currentTarget.style.borderColor = '#FFFFFF';
+                      e.currentTarget.style.borderColor = 'var(--white)';
                       e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!active) {
-                      e.currentTarget.style.borderColor = '#2A2A2A';
+                      e.currentTarget.style.borderColor = 'var(--gray-mid)';
                       e.currentTarget.style.backgroundColor = 'transparent';
                     }
                   }}
@@ -88,7 +95,7 @@ const VariantSelector = ({ variants, selectedSize, onSelectSize, selectedColor, 
                       position: 'absolute',
                       width: '1px',
                       height: '120%',
-                      backgroundColor: '#333',
+                      backgroundColor: 'var(--gray-mid)',
                       transform: 'rotate(45deg)',
                       pointerEvents: 'none',
                     }} />
@@ -105,20 +112,24 @@ const VariantSelector = ({ variants, selectedSize, onSelectSize, selectedColor, 
         <div>
           <span style={{
             fontSize: '11px',
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "var(--display)",
             fontWeight: 700,
             textTransform: 'uppercase',
             letterSpacing: '0.18em',
             display: 'block',
             marginBottom: '12px',
-            color: '#555',
+            color: 'var(--gray-text)',
           }}>
             COLOR
             {selectedColor && (
-              <span style={{ color: '#FFFFFF', marginLeft: '8px' }}>— {selectedColor}</span>
+              <span style={{ color: 'var(--white)', marginLeft: '8px' }}>— {selectedColor}</span>
             )}
           </span>
-          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          <div 
+            role="radiogroup" 
+            aria-label="Seleccionar color" 
+            style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}
+          >
             {allColors.map((color) => {
               const available = isColorAvailable(color);
               const active    = selectedColor === color;
@@ -127,29 +138,32 @@ const VariantSelector = ({ variants, selectedSize, onSelectSize, selectedColor, 
                   key={color}
                   onClick={() => onSelectColor(active ? null : color)}
                   disabled={!available}
+                  role="radio"
+                  aria-checked={active}
+                  aria-label={`Color ${color}${!available ? ' (Agotado)' : ''}`}
                   style={{
                     padding: '10px 18px',
-                    border: active ? '1px solid #FFFFFF' : '1px solid #2A2A2A',
+                    border: active ? '1px solid var(--white)' : '1px solid var(--gray-mid)',
                     fontSize: '12px',
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontFamily: "var(--display)",
                     fontWeight: 900,
-                    backgroundColor: active ? '#FFFFFF' : 'transparent',
-                    color: active ? '#000000' : available ? '#FFFFFF' : '#333',
+                    backgroundColor: active ? 'var(--white)' : 'transparent',
+                    color: active ? 'var(--black)' : available ? 'var(--white)' : 'var(--gray-mid)',
                     opacity: available ? 1 : 0.3,
                     cursor: available ? 'pointer' : 'not-allowed',
                     textTransform: 'uppercase',
                     letterSpacing: '0.08em',
-                    transition: 'all 0.15s ease',
+                    transition: 'var(--transition)',
                   }}
                   onMouseEnter={(e) => {
                     if (available && !active) {
-                      e.currentTarget.style.borderColor = '#FFFFFF';
+                      e.currentTarget.style.borderColor = 'var(--white)';
                       e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!active) {
-                      e.currentTarget.style.borderColor = '#2A2A2A';
+                      e.currentTarget.style.borderColor = 'var(--gray-mid)';
                       e.currentTarget.style.backgroundColor = 'transparent';
                     }
                   }}

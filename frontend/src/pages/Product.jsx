@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useProducts } from '../hooks/useProducts';
 import { useCartStore } from '../store/cartStore';
 import VariantSelector from '../components/VariantSelector';
 import { motion } from 'framer-motion';
+import Skeleton from '../components/Skeleton';
 
 const Product = () => {
   const { id } = useParams();
@@ -26,25 +27,39 @@ const Product = () => {
 
   if (loading) {
     return (
-      <div style={{
-        textAlign: 'center',
-        padding: '160px 0',
-        fontFamily: "'Space Grotesk', sans-serif",
-        fontWeight: 900,
-        fontSize: '13px',
-        letterSpacing: '0.2em',
-        color: '#333',
-        textTransform: 'uppercase',
-      }}>
-        CARGANDO PRENDA...
+      <div style={{ backgroundColor: 'var(--base-dark)', minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr 1fr' }} className="product-layout">
+        {/* Left Side Skeleton: Large Image placeholder */}
+        <Skeleton height="100vh" style={{ borderRight: '1px solid var(--gray-mid)' }} />
+        
+        {/* Right Side Skeleton: Details panel placeholders */}
+        <div style={{ padding: '64px 48px', display: 'flex', flexDirection: 'column', gap: '32px', backgroundColor: 'var(--base-dark)' }}>
+          <Skeleton width="40%" height="16px" />
+          <Skeleton width="60%" height="60px" />
+          <Skeleton width="100%" height="1px" />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Skeleton width="60px" height="40px" />
+            <Skeleton width="60px" height="40px" />
+            <Skeleton width="60px" height="40px" />
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Skeleton width="80px" height="40px" />
+            <Skeleton width="80px" height="40px" />
+          </div>
+          <Skeleton width="100%" height="56px" style={{ marginTop: '20px' }} />
+          <Skeleton width="100%" height="1px" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <Skeleton width="30%" height="16px" />
+            <Skeleton width="100%" height="80px" />
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!currentProduct) {
     return (
-      <div style={{ textAlign: 'center', padding: '120px 24px', backgroundColor: '#0A0A0A' }}>
-        <h2 style={{ fontSize: '48px', fontFamily: "'Space Grotesk', sans-serif", fontWeight: 900, textTransform: 'uppercase', color: '#FFFFFF', marginBottom: '24px' }}>
+      <div style={{ textAlign: 'center', padding: '120px 24px', backgroundColor: 'var(--base-dark)', minHeight: '80vh' }}>
+        <h2 style={{ fontSize: '48px', fontFamily: "var(--display)", fontWeight: 900, textTransform: 'uppercase', color: 'var(--white)', marginBottom: '24px' }}>
           PRENDA NO<br />ENCONTRADA
         </h2>
         <button
@@ -80,7 +95,7 @@ const Product = () => {
   const displayImage = activeImage || defaultImage;
 
   return (
-    <div style={{ backgroundColor: '#0A0A0A', minHeight: '100vh' }}>
+    <div style={{ backgroundColor: 'var(--base-dark)', minHeight: '100vh' }}>
 
       {/* ── LAYOUT EDITORIAL: Imagen grande + panel de detalle ── */}
       <div style={{
@@ -94,13 +109,14 @@ const Product = () => {
         {/* ── COLUMNA IZQUIERDA: Imagen editorial full-height ── */}
         <div style={{
           position: 'relative',
-          backgroundColor: '#111111',
+          backgroundColor: 'var(--bg-card)',
           overflow: 'hidden',
         }}>
           {/* Imagen principal */}
           <img
             src={displayImage}
             alt={currentProduct.name}
+            loading="lazy"
             style={{
               width: '100%',
               height: '100%',
@@ -134,7 +150,7 @@ const Product = () => {
             padding: '32px',
           }}>
             <span style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--display)",
               fontSize: '11px',
               fontWeight: 700,
               letterSpacing: '0.25em',
@@ -146,12 +162,12 @@ const Product = () => {
               — CALEN DESIGN / COL. 01
             </span>
             <h1 style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--display)",
               fontSize: 'clamp(28px, 4vw, 52px)',
               fontWeight: 900,
               textTransform: 'uppercase',
               letterSpacing: '0.04em',
-              color: '#FFFFFF',
+              color: 'var(--white)',
               lineHeight: 1,
             }}>
               {currentProduct.name}
@@ -173,18 +189,20 @@ const Product = () => {
                 <button
                   key={idx}
                   onClick={() => setActiveImage(img)}
+                  aria-label={`Ver imagen ${idx + 1}`}
                   style={{
                     width: '56px',
                     height: '72px',
                     padding: 0,
                     overflow: 'hidden',
-                    border: activeImage === img ? '1px solid #FFFFFF' : '1px solid #333',
+                    backgroundColor: 'var(--bg-card)',
+                    border: activeImage === img ? '1px solid var(--white)' : '1px solid var(--gray-mid)',
                     opacity: activeImage === img ? 1 : 0.5,
-                    transition: 'all 0.18s ease',
+                    transition: 'var(--transition)',
                     cursor: 'pointer',
                   }}
                 >
-                  <img src={img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img src={img} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </button>
               ))}
             </div>
@@ -193,8 +211,8 @@ const Product = () => {
 
         {/* ── COLUMNA DERECHA: Panel de compra ── */}
         <div style={{
-          backgroundColor: '#0A0A0A',
-          borderLeft: '1px solid #1A1A1A',
+          backgroundColor: 'var(--base-dark)',
+          borderLeft: '1px solid var(--gray-mid)',
           padding: '64px 48px',
           display: 'flex',
           flexDirection: 'column',
@@ -202,32 +220,29 @@ const Product = () => {
           overflowY: 'auto',
         }}>
           {/* Breadcrumb editorial */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', fontFamily: 'var(--display)', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+            <Link to="/" style={{ color: 'var(--gray-text)', transition: 'var(--transition)' }} onMouseEnter={(e) => e.target.style.color = 'var(--white)'} onMouseLeave={(e) => e.target.style.color = 'var(--gray-text)'}>
+              INICIO
+            </Link>
+            <span style={{ color: 'var(--gray-mid)' }}>&gt;</span>
             <button
               onClick={() => navigate('/productos')}
               style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--display)",
                 fontSize: '11px',
                 fontWeight: 700,
                 letterSpacing: '0.15em',
-                color: '#555',
+                color: 'var(--gray-text)',
                 textTransform: 'uppercase',
                 transition: 'color 0.18s ease',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#FFFFFF'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#555'; }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--white)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--gray-text)'; }}
             >
               CATÁLOGO
             </button>
-            <span style={{ color: '#333', fontSize: '11px' }}>—</span>
-            <span style={{
-              fontFamily: "'Space Grotesk', sans-serif",
-              fontSize: '11px',
-              fontWeight: 700,
-              letterSpacing: '0.15em',
-              color: '#FF2D2D',
-              textTransform: 'uppercase',
-            }}>
+            <span style={{ color: 'var(--gray-mid)' }}>&gt;</span>
+            <span style={{ color: 'var(--accent-red)' }}>
               {currentProduct.name}
             </span>
           </div>
@@ -235,10 +250,10 @@ const Product = () => {
           {/* Precio — enorme, en rojo */}
           <div>
             <p style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--display)",
               fontSize: 'clamp(40px, 5vw, 64px)',
               fontWeight: 900,
-              color: '#FF2D2D',
+              color: 'var(--accent-red)',
               letterSpacing: '-0.01em',
               lineHeight: 1,
             }}>
@@ -247,7 +262,7 @@ const Product = () => {
           </div>
 
           {/* Separador */}
-          <div style={{ height: '1px', backgroundColor: '#1A1A1A' }} />
+          <div style={{ height: '1px', backgroundColor: 'var(--gray-mid)' }} />
 
           {/* Selector de variantes */}
           {currentProduct.variants?.length > 0 ? (
@@ -265,10 +280,10 @@ const Product = () => {
             />
           ) : (
             <div style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--display)",
               fontWeight: 900,
               fontSize: '13px',
-              color: '#FF2D2D',
+              color: 'var(--accent-red)',
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
             }}>
@@ -280,9 +295,9 @@ const Product = () => {
           {selectedSize && selectedColor && matchedVariant && (
             <span style={{
               fontSize: '12px',
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--display)",
               fontWeight: 700,
-              color: matchedVariant.stock > 0 ? '#C8FF00' : '#FF2D2D',
+              color: matchedVariant.stock > 0 ? 'var(--accent-lima)' : 'var(--accent-red)',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
             }}>
@@ -300,31 +315,31 @@ const Product = () => {
               style={{
                 width: '100%',
                 padding: '20px 24px',
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--display)",
                 fontWeight: 900,
                 fontSize: '14px',
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
-                backgroundColor: isAddToCartDisabled ? '#1A1A1A' : '#FFFFFF',
-                color: isAddToCartDisabled ? '#444' : '#000000',
-                border: isAddToCartDisabled ? '1px solid #2A2A2A' : '1px solid #FFFFFF',
+                backgroundColor: isAddToCartDisabled ? 'var(--bg-card)' : 'var(--white)',
+                color: isAddToCartDisabled ? 'var(--gray-text)' : 'var(--black)',
+                border: isAddToCartDisabled ? '1px solid var(--gray-mid)' : 'var(--border-brutal)',
                 cursor: isAddToCartDisabled ? 'not-allowed' : 'pointer',
-                transition: 'all 0.18s ease',
+                transition: 'var(--transition)',
               }}
               onMouseEnter={(e) => {
                 if (!isAddToCartDisabled) {
-                  e.currentTarget.style.backgroundColor = '#FF2D2D';
-                  e.currentTarget.style.color = '#FFFFFF';
-                  e.currentTarget.style.borderColor = '#FF2D2D';
+                  e.currentTarget.style.backgroundColor = 'var(--accent-red)';
+                  e.currentTarget.style.color = 'var(--white)';
+                  e.currentTarget.style.borderColor = 'var(--accent-red)';
                   e.currentTarget.style.transform = 'translate(-2px, -2px)';
-                  e.currentTarget.style.boxShadow = '4px 4px 0px #FF2D2D';
+                  e.currentTarget.style.boxShadow = 'var(--shadow-brutal-hover)';
                 }
               }}
               onMouseLeave={(e) => {
                 if (!isAddToCartDisabled) {
-                  e.currentTarget.style.backgroundColor = '#FFFFFF';
-                  e.currentTarget.style.color = '#000000';
-                  e.currentTarget.style.borderColor = '#FFFFFF';
+                  e.currentTarget.style.backgroundColor = 'var(--white)';
+                  e.currentTarget.style.color = 'var(--black)';
+                  e.currentTarget.style.borderColor = 'var(--white)';
                   e.currentTarget.style.transform = 'none';
                   e.currentTarget.style.boxShadow = 'none';
                 }
@@ -342,13 +357,15 @@ const Product = () => {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
+                role="alert"
+                aria-live="polite"
                 style={{
                   padding: '14px',
-                  backgroundColor: '#0A0A0A',
-                  color: '#C8FF00',
-                  border: '1px solid #C8FF00',
+                  backgroundColor: 'var(--base-dark)',
+                  color: 'var(--accent-lima)',
+                  border: '1px solid var(--accent-lima)',
                   fontSize: '12px',
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: "var(--display)",
                   textAlign: 'center',
                   fontWeight: 900,
                   textTransform: 'uppercase',
@@ -361,26 +378,26 @@ const Product = () => {
           </div>
 
           {/* Separador */}
-          <div style={{ height: '1px', backgroundColor: '#1A1A1A' }} />
+          <div style={{ height: '1px', backgroundColor: 'var(--gray-mid)' }} />
 
           {/* Descripción */}
           <div>
             <h3 style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--display)",
               fontSize: '11px',
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '0.18em',
-              color: '#555',
+              color: 'var(--gray-text)',
               marginBottom: '16px',
             }}>
               DESCRIPCIÓN
             </h3>
             <p style={{
               fontSize: '14px',
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "var(--sans)",
               fontWeight: 400,
-              color: '#888',
+              color: 'var(--gray-text-light)',
               lineHeight: 1.9,
               whiteSpace: 'pre-line',
             }}>
@@ -392,13 +409,13 @@ const Product = () => {
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '8px' }}>
             {['ENVÍO A TODO EL PAÍS', 'DISEÑO PROPIO', 'CALIDAD PREMIUM'].map(tag => (
               <span key={tag} style={{
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "var(--display)",
                 fontSize: '10px',
                 fontWeight: 700,
                 letterSpacing: '0.12em',
-                color: '#444',
+                color: 'var(--gray-text)',
                 textTransform: 'uppercase',
-                border: '1px solid #2A2A2A',
+                border: '1px solid var(--gray-mid)',
                 padding: '5px 10px',
               }}>
                 {tag}

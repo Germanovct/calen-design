@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-// ── Ícono ojito ────────────────────────────────────────────────────
+// ── Eye Icon Component ────────────────────────────────────────────
 const EyeIcon = ({ open }) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -21,21 +21,22 @@ const EyeIcon = ({ open }) => (
   </svg>
 );
 
-// ── Campo de input reutilizable ────────────────────────────────────
-const Field = ({ label, required, type = 'text', name, value, onChange, placeholder, rightSlot }) => (
+// ── Reusable Input Field ────────────────────────────────────────────
+const Field = ({ label, required, type = 'text', name, value, onChange, placeholder, rightSlot, id }) => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-    <label style={{
-      fontFamily: "'Space Grotesk', sans-serif",
+    <label htmlFor={id} style={{
+      fontFamily: "var(--display)",
       fontSize: '11px',
       fontWeight: 700,
       letterSpacing: '0.18em',
       textTransform: 'uppercase',
-      color: '#888',
+      color: 'var(--gray-text)',
     }}>
-      {label}{required && <span style={{ color: '#FF2D2D', marginLeft: '3px' }}>*</span>}
+      {label}{required && <span style={{ color: 'var(--accent-red)', marginLeft: '3px' }}>*</span>}
     </label>
     <div style={{ position: 'relative' }}>
       <input
+        id={id}
         type={type}
         name={name}
         value={value}
@@ -46,24 +47,24 @@ const Field = ({ label, required, type = 'text', name, value, onChange, placehol
         style={{
           width: '100%',
           padding: rightSlot ? '14px 48px 14px 16px' : '14px 16px',
-          backgroundColor: '#1A1A1A',
-          border: '1px solid #333',
-          color: '#FFFFFF',
-          fontFamily: "'Space Grotesk', sans-serif",
+          backgroundColor: 'var(--bg-card)',
+          border: '1px solid var(--gray-mid)',
+          color: 'var(--white)',
+          fontFamily: "var(--display)",
           fontSize: '15px',
           fontWeight: 500,
           outline: 'none',
           boxSizing: 'border-box',
           transition: 'border-color 0.2s',
         }}
-        onFocus={e => { e.target.style.borderColor = '#FFFFFF'; }}
-        onBlur={e => { e.target.style.borderColor = '#333'; }}
+        onFocus={e => { e.target.style.borderColor = 'var(--white)'; }}
+        onBlur={e => { e.target.style.borderColor = 'var(--gray-mid)'; }}
       />
       {rightSlot && (
         <div style={{
           position: 'absolute', right: '14px', top: '50%',
           transform: 'translateY(-50%)',
-          color: '#555', cursor: 'pointer', display: 'flex', alignItems: 'center',
+          color: 'var(--gray-text)', display: 'flex', alignItems: 'center',
         }}>
           {rightSlot}
         </div>
@@ -72,14 +73,14 @@ const Field = ({ label, required, type = 'text', name, value, onChange, placehol
   </div>
 );
 
-// ── Mensaje de error ───────────────────────────────────────────────
+// ── Error Message ───────────────────────────────────────────────────
 const ErrorMsg = ({ msg }) => msg ? (
   <div style={{
     padding: '12px 16px',
     backgroundColor: 'rgba(255, 45, 45, 0.08)',
-    border: '1px solid #FF2D2D',
-    color: '#FF2D2D',
-    fontFamily: "'Space Grotesk', sans-serif",
+    border: '1px solid var(--accent-red)',
+    color: 'var(--accent-red)',
+    fontFamily: "var(--display)",
     fontSize: '13px',
     fontWeight: 700,
     letterSpacing: '0.04em',
@@ -89,14 +90,14 @@ const ErrorMsg = ({ msg }) => msg ? (
   </div>
 ) : null;
 
-// ── Mensaje de éxito ───────────────────────────────────────────────
+// ── Success Message ─────────────────────────────────────────────────
 const SuccessMsg = ({ msg }) => msg ? (
   <div style={{
     padding: '12px 16px',
     backgroundColor: 'rgba(0, 200, 83, 0.08)',
     border: '1px solid #00C853',
     color: '#00C853',
-    fontFamily: "'Space Grotesk', sans-serif",
+    fontFamily: "var(--display)",
     fontSize: '13px',
     fontWeight: 700,
     letterSpacing: '0.04em',
@@ -106,7 +107,7 @@ const SuccessMsg = ({ msg }) => msg ? (
   </div>
 ) : null;
 
-// ── Botón principal ────────────────────────────────────────────────
+// ── Primary Button ──────────────────────────────────────────────────
 const PrimaryBtn = ({ children, loading, onClick, type = 'submit', accent = false }) => (
   <button
     type={type}
@@ -115,9 +116,9 @@ const PrimaryBtn = ({ children, loading, onClick, type = 'submit', accent = fals
     style={{
       width: '100%',
       padding: '16px',
-      backgroundColor: accent ? '#FF2D2D' : '#FFFFFF',
-      color: accent ? '#FFFFFF' : '#0A0A0A',
-      fontFamily: "'Space Grotesk', sans-serif",
+      backgroundColor: accent ? 'var(--accent-red)' : 'var(--white)',
+      color: accent ? 'var(--white)' : 'var(--base-dark)',
+      fontFamily: "var(--display)",
       fontWeight: 900,
       fontSize: '13px',
       letterSpacing: '0.2em',
@@ -175,7 +176,7 @@ const Account = () => {
     }
   }, [user, redirectTarget]);
 
-  // ── Limpiar errores al cambiar de tab ──
+  // ── Clear errors on tab switch ──
   const switchTab = (tab) => {
     setActiveTab(tab);
     setFormError('');
@@ -195,7 +196,7 @@ const Account = () => {
     }
   };
 
-  // ── Registro ────────────────────────────────────────────────────
+  // ── Register ────────────────────────────────────────────────────
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
@@ -214,16 +215,15 @@ const Account = () => {
       await register(registerForm.name, registerForm.email, registerForm.password);
       setSuccessMessage('¡Cuenta creada! Ya podés iniciar sesión.');
       setRegisterForm({ name: '', email: '', password: '', confirmPassword: '' });
-      // No redirigir — mantener en tab registro con el mensaje
     } catch (err) {
       setFormError(err.message || 'Error al crear la cuenta. Intentá de nuevo.');
     }
   };
 
-  // ── Shared style ───────────────────────────────────────────────
+  // ── Shared styles ───────────────────────────────────────────────
   const pageStyle = {
     minHeight: '100vh',
-    backgroundColor: '#0A0A0A',
+    backgroundColor: 'var(--base-dark)',
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'center',
@@ -233,12 +233,12 @@ const Account = () => {
   const cardStyle = {
     width: '100%',
     maxWidth: '480px',
-    backgroundColor: '#111',
-    border: '1px solid #1E1E1E',
+    backgroundColor: 'var(--bg-card)',
+    border: 'var(--border-brutal)',
   };
 
   // ═══════════════════════════════════════════════════════════════
-  // VISTA: Usuario autenticado
+  // VIEW: Authenticated User
   // ═══════════════════════════════════════════════════════════════
   if (user) {
     return (
@@ -247,18 +247,18 @@ const Account = () => {
           {/* Header */}
           <div style={{
             padding: '40px 40px 32px 40px',
-            borderBottom: '1px solid #1E1E1E',
+            borderBottom: '1px solid var(--gray-mid)',
           }}>
             <span style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--display)",
               fontSize: '11px', fontWeight: 700,
-              letterSpacing: '0.25em', color: '#FF2D2D',
+              letterSpacing: '0.25em', color: 'var(--accent-red)',
               textTransform: 'uppercase', display: 'block', marginBottom: '12px',
             }}>— Mi cuenta</span>
             <h1 style={{
-              fontFamily: "'Space Grotesk', sans-serif",
+              fontFamily: "var(--display)",
               fontSize: '40px', fontWeight: 900,
-              color: '#FFFFFF', textTransform: 'uppercase',
+              color: 'var(--white)', textTransform: 'uppercase',
               letterSpacing: '-0.02em', lineHeight: 1,
             }}>
               Hola, {user.name?.split(' ')[0] || 'Usuaria'} 👋
@@ -275,14 +275,14 @@ const Account = () => {
             ].filter(r => r.val).map(row => (
               <div key={row.label} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: "var(--display)",
                   fontSize: '10px', fontWeight: 700,
-                  letterSpacing: '0.2em', color: '#555',
+                  letterSpacing: '0.2em', color: 'var(--gray-text)',
                   textTransform: 'uppercase',
                 }}>{row.label}</span>
                 <span style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  fontSize: '14px', fontWeight: 500, color: '#FFFFFF',
+                  fontFamily: "var(--display)",
+                  fontSize: '14px', fontWeight: 500, color: 'var(--white)',
                 }}>{row.val}</span>
               </div>
             ))}
@@ -292,8 +292,8 @@ const Account = () => {
           <div style={{ padding: '0 40px 40px 40px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <Link to="/mi-cuenta/pedidos" style={{
               display: 'block', width: '100%', padding: '16px',
-              backgroundColor: '#FFFFFF', color: '#0A0A0A',
-              fontFamily: "'Space Grotesk', sans-serif",
+              backgroundColor: 'var(--white)', color: 'var(--base-dark)',
+              fontFamily: "var(--display)",
               fontWeight: 900, fontSize: '13px', letterSpacing: '0.2em',
               textTransform: 'uppercase', textDecoration: 'none', textAlign: 'center',
               boxSizing: 'border-box',
@@ -302,11 +302,11 @@ const Account = () => {
             {user.role === 'admin' && (
               <Link to="/admin" style={{
                 display: 'block', width: '100%', padding: '16px',
-                backgroundColor: 'transparent', color: '#FFFFFF',
-                fontFamily: "'Space Grotesk', sans-serif",
+                backgroundColor: 'transparent', color: 'var(--white)',
+                fontFamily: "var(--display)",
                 fontWeight: 900, fontSize: '13px', letterSpacing: '0.2em',
                 textTransform: 'uppercase', textDecoration: 'none', textAlign: 'center',
-                border: '1px solid #333', boxSizing: 'border-box',
+                border: '1px solid var(--gray-mid)', boxSizing: 'border-box',
               }}>Panel Admin</Link>
             )}
           </div>
@@ -316,42 +316,44 @@ const Account = () => {
   }
 
   // ═══════════════════════════════════════════════════════════════
-  // VISTA: Auth (login / registro)
+  // VIEW: Auth (login / register)
   // ═══════════════════════════════════════════════════════════════
   return (
     <div style={pageStyle}>
       <div style={cardStyle}>
 
-        {/* ── Logo / Título ── */}
+        {/* Logo / Title */}
         <div style={{ padding: '48px 40px 0 40px', textAlign: 'center' }}>
           <h1 style={{
-            fontFamily: "'Space Grotesk', sans-serif",
+            fontFamily: "var(--display)",
             fontSize: '13px', fontWeight: 700,
-            letterSpacing: '0.3em', color: '#555',
+            letterSpacing: '0.3em', color: 'var(--gray-text)',
             textTransform: 'uppercase', marginBottom: '32px',
           }}>CALEN DESIGN</h1>
         </div>
 
-        {/* ── Tabs ── */}
-        <div style={{ display: 'flex', borderBottom: '1px solid #1E1E1E', margin: '0 40px' }}>
+        {/* Tabs switcher */}
+        <div role="tablist" style={{ display: 'flex', borderBottom: '1px solid var(--gray-mid)', margin: '0 40px' }}>
           {['login', 'register'].map(tab => {
             const label = tab === 'login' ? 'Ingresar' : 'Crear cuenta';
             const isActive = activeTab === tab;
             return (
               <button
                 key={tab}
+                role="tab"
+                aria-selected={isActive}
                 onClick={() => switchTab(tab)}
                 style={{
                   flex: 1,
                   padding: '16px 0',
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: "var(--display)",
                   fontSize: '12px', fontWeight: 700,
                   letterSpacing: '0.2em',
                   textTransform: 'uppercase',
-                  color: isActive ? '#FFFFFF' : '#444',
+                  color: isActive ? 'var(--white)' : 'var(--gray-text)',
                   backgroundColor: 'transparent',
                   border: 'none',
-                  borderBottom: isActive ? '2px solid #FFFFFF' : '2px solid transparent',
+                  borderBottom: isActive ? '2px solid var(--white)' : '2px solid transparent',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                   marginBottom: '-1px',
@@ -363,7 +365,7 @@ const Account = () => {
           })}
         </div>
 
-        {/* ── Form area ── */}
+        {/* Form area */}
         <div style={{ padding: '32px 40px 48px 40px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           <ErrorMsg msg={formError || error} />
@@ -373,6 +375,7 @@ const Account = () => {
           {activeTab === 'login' && (
             <form onSubmit={handleLoginSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <Field
+                id="login-email"
                 label="Email" required
                 type="email" name="email"
                 value={loginForm.email}
@@ -380,6 +383,7 @@ const Account = () => {
                 placeholder="tu@email.com"
               />
               <Field
+                id="login-password"
                 label="Contraseña" required
                 type={showLoginPwd ? 'text' : 'password'}
                 name="password"
@@ -387,9 +391,22 @@ const Account = () => {
                 onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
                 placeholder="••••••••"
                 rightSlot={
-                  <span onClick={() => setShowLoginPwd(v => !v)}>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowLoginPwd(v => !v)}
+                    aria-label={showLoginPwd ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'inherit',
+                      padding: 0,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
                     <EyeIcon open={showLoginPwd} />
-                  </span>
+                  </button>
                 }
               />
 
@@ -401,25 +418,36 @@ const Account = () => {
 
               <p style={{
                 textAlign: 'center',
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontSize: '12px', color: '#444',
+                fontFamily: "var(--display)",
+                fontSize: '12px', color: 'var(--gray-text)',
                 marginTop: '4px',
               }}>
                 ¿No tenés cuenta?{' '}
-                <span
+                <button
+                  type="button"
                   onClick={() => switchTab('register')}
-                  style={{ color: '#FFFFFF', cursor: 'pointer', fontWeight: 700, textDecoration: 'underline' }}
+                  style={{ 
+                    color: 'var(--white)', 
+                    cursor: 'pointer', 
+                    fontWeight: 700, 
+                    textDecoration: 'underline',
+                    background: 'none',
+                    border: 'none',
+                    fontFamily: 'inherit',
+                    padding: 0
+                  }}
                 >
                   Créala gratis
-                </span>
+                </button>
               </p>
             </form>
           )}
 
-          {/* ── REGISTRO ── */}
+          {/* ── REGISTER ── */}
           {activeTab === 'register' && (
             <form onSubmit={handleRegisterSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               <Field
+                id="register-name"
                 label="Nombre completo" required
                 type="text" name="name"
                 value={registerForm.name}
@@ -427,6 +455,7 @@ const Account = () => {
                 placeholder="Valentina García"
               />
               <Field
+                id="register-email"
                 label="Email" required
                 type="email" name="email"
                 value={registerForm.email}
@@ -434,6 +463,7 @@ const Account = () => {
                 placeholder="tu@email.com"
               />
               <Field
+                id="register-password"
                 label="Contraseña" required
                 type={showRegPwd ? 'text' : 'password'}
                 name="password"
@@ -441,12 +471,26 @@ const Account = () => {
                 onChange={e => setRegisterForm({ ...registerForm, password: e.target.value })}
                 placeholder="Mínimo 6 caracteres"
                 rightSlot={
-                  <span onClick={() => setShowRegPwd(v => !v)}>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowRegPwd(v => !v)}
+                    aria-label={showRegPwd ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'inherit',
+                      padding: 0,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
                     <EyeIcon open={showRegPwd} />
-                  </span>
+                  </button>
                 }
               />
               <Field
+                id="register-confirm-password"
                 label="Confirmar contraseña" required
                 type={showRegConfirm ? 'text' : 'password'}
                 name="confirmPassword"
@@ -454,18 +498,31 @@ const Account = () => {
                 onChange={e => setRegisterForm({ ...registerForm, confirmPassword: e.target.value })}
                 placeholder="Repetí tu contraseña"
                 rightSlot={
-                  <span onClick={() => setShowRegConfirm(v => !v)}>
+                  <button 
+                    type="button" 
+                    onClick={() => setShowRegConfirm(v => !v)}
+                    aria-label={showRegConfirm ? "Ocultar contraseña" : "Mostrar contraseña"}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'inherit',
+                      padding: 0,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
                     <EyeIcon open={showRegConfirm} />
-                  </span>
+                  </button>
                 }
               />
 
-              {/* Indicador de coincidencia */}
+              {/* Match indicator */}
               {registerForm.confirmPassword.length > 0 && (
                 <p style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
+                  fontFamily: "var(--display)",
                   fontSize: '11px', fontWeight: 700,
-                  color: registerForm.password === registerForm.confirmPassword ? '#00C853' : '#FF2D2D',
+                  color: registerForm.password === registerForm.confirmPassword ? '#00C853' : 'var(--accent-red)',
                   letterSpacing: '0.08em',
                   marginTop: '-8px',
                 }}>
@@ -483,17 +540,27 @@ const Account = () => {
 
               <p style={{
                 textAlign: 'center',
-                fontFamily: "'Space Grotesk', sans-serif",
-                fontSize: '12px', color: '#444',
+                fontFamily: "var(--display)",
+                fontSize: '12px', color: 'var(--gray-text)',
                 marginTop: '4px',
               }}>
                 ¿Ya tenés cuenta?{' '}
-                <span
+                <button
+                  type="button"
                   onClick={() => switchTab('login')}
-                  style={{ color: '#FFFFFF', cursor: 'pointer', fontWeight: 700, textDecoration: 'underline' }}
+                  style={{ 
+                    color: 'var(--white)', 
+                    cursor: 'pointer', 
+                    fontWeight: 700, 
+                    textDecoration: 'underline',
+                    background: 'none',
+                    border: 'none',
+                    fontFamily: 'inherit',
+                    padding: 0
+                  }}
                 >
                   Ingresá acá
-                </span>
+                </button>
               </p>
             </form>
           )}

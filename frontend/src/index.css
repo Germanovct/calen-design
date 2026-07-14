@@ -13,7 +13,8 @@
   --text-main:    #FFFFFF;
   --accent-red:   #FF2D2D;
   --accent-lima:  #C8FF00;
-  --gray-text:    #888888;
+  --gray-text:    #999999;
+  --gray-text-light: #AAAAAA;
   --gray-mid:     #333333;
 
   /* Borders — 1px blanco, sin grosor brutal */
@@ -48,6 +49,11 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--accent-lima) !important;
+  outline-offset: 2px !important;
 }
 
 html {
@@ -443,3 +449,25 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ── LEGACY FALLBACKS — eliminar referencias a colores viejos ── */
 /* Ningún var(--primary-yellow) ni var(--primary-pink) debe usarse */
+
+/* ── HOVER UTILITIES ── */
+.hover-lift {
+  transition: var(--transition);
+}
+.hover-lift:hover, .hover-lift:focus-visible {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-brutal);
+}
+.hover-red:hover, .hover-red:focus-visible {
+  color: var(--accent-red) !important;
+}
+
+/* ── ACCESSIBILITY: REDUCED MOTION ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

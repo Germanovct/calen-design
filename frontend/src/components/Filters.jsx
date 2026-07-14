@@ -14,7 +14,7 @@ const Filters = ({ categories, selectedCategory, onSelectCategory, selectedSize,
       flexDirection: 'column',
       gap: '24px'
     }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #333333', paddingBottom: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--gray-mid)', paddingBottom: '12px' }}>
         <h3 style={{ fontSize: '18px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', color: 'var(--white)', letterSpacing: '0.05em' }}>FILTROS</h3>
         <button 
           onClick={onClearFilters} 
@@ -37,6 +37,7 @@ const Filters = ({ categories, selectedCategory, onSelectCategory, selectedSize,
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <button
             onClick={() => onSelectCategory(null)}
+            aria-pressed={!selectedCategory}
             style={{
               textAlign: 'left',
               padding: '10px 14px',
@@ -59,6 +60,7 @@ const Filters = ({ categories, selectedCategory, onSelectCategory, selectedSize,
               <button
                 key={cat.id}
                 onClick={() => onSelectCategory(cat.slug)}
+                aria-pressed={active}
                 style={{
                   textAlign: 'left',
                   padding: '10px 14px',
@@ -90,6 +92,7 @@ const Filters = ({ categories, selectedCategory, onSelectCategory, selectedSize,
               <button
                 key={size}
                 onClick={() => onSelectSize(active ? null : size)}
+                aria-pressed={active}
                 style={{
                   width: '38px',
                   height: '38px',
@@ -123,6 +126,7 @@ const Filters = ({ categories, selectedCategory, onSelectCategory, selectedSize,
               <button
                 key={color}
                 onClick={() => onSelectColor(active ? null : color)}
+                aria-pressed={active}
                 style={{
                   padding: '8px 14px',
                   borderRadius: '0px',

@@ -28,6 +28,7 @@ const Admin = () => {
   const [imageFile, setImageFile] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   // Editing stock state
   const [editingStock, setEditingStock] = useState({}); // { variantId: stock }
@@ -65,7 +66,7 @@ const Admin = () => {
   if (!user || user.role !== 'admin') return null;
 
   if (loadingData) {
-    return <div style={{ textAlign: 'center', padding: '120px 0', color: 'var(--gray-medium)' }}>Cargando panel de control...</div>;
+    return <div style={{ textAlign: 'center', padding: '120px 0', color: 'var(--gray-text)' }}>Cargando panel de control...</div>;
   }
 
   // CÁLCULO DE MÉTRICAS (Dashboard)
@@ -117,49 +118,58 @@ const Admin = () => {
     }
   };
 
-  const handleProductDelete = async (id) => {
-    if (window.confirm('¿Seguro que deseas eliminar este producto?')) {
-      try {
-        await deleteProduct(id);
-        alert('Producto eliminado correctamente.');
-      } catch (err) {
-        alert(err.message);
-      }
-    }
+  const handleProductDelete = (id) => {
+    setConfirmDeleteId(id);
   };
 
   // ACTUALIZAR STOCK DE VARIANTE
   const handleStockUpdate = async (variantId) => {
     const stockVal = editingStock[variantId];
     if (stockVal === undefined) return;
+    setErrorMsg('');
+    setSuccessMsg('');
     try {
       await updateVariant(variantId, { stock: parseInt(stockVal) });
-      alert('Stock actualizado con éxito.');
+      setSuccessMsg('Stock actualizado con éxito.');
       fetchProducts({ active: null });
     } catch (err) {
-      alert(err.message);
+      setErrorMsg(err.message || 'Error al actualizar stock.');
     }
   };
 
   // REGISTRAR ENVÍO / CARGAR TRACKING
   const handleShippingSubmit = async (e) => {
     e.preventDefault();
+    setErrorMsg('');
+    setSuccessMsg('');
     try {
       await addShippingInfo(shippingForm.orderId, {
         carrier: shippingForm.carrier,
         tracking_number: shippingForm.trackingNumber
       });
-      alert('Tracking cargado y orden despachada.');
+      setSuccessMsg('Tracking cargado y orden despachada.');
       setShippingForm({ orderId: '', carrier: '', trackingNumber: '' });
       fetchOrders();
     } catch (err) {
-      alert(err.message);
+      setErrorMsg(err.message || 'Error al cargar tracking.');
     }
   };
 
   return (
-    <div className="container" style={{ padding: '60px 24px 100px 24px', backgroundColor: '#0A0A0A', color: '#FFFFFF' }}>
-      <h1 style={{ fontFamily: 'var(--display)', fontSize: '52px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '40px', color: '#FFFFFF' }}>Panel Admin</h1>
+    <div className="container" style={{ padding: '60px 24px 100px 24px', backgroundColor: 'var(--base-dark)', color: 'var(--white)' }}>
+      <h1 style={{ fontFamily: 'var(--display)', fontSize: '52px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '40px', color: 'var(--white)' }}>Panel Admin</h1>
+
+      {/* Notification banner for other tabs */}
+      {errorMsg && activeTab !== 'products' && (
+        <div style={{ color: 'var(--accent-red)', border: 'var(--border-red)', backgroundColor: 'rgba(255,45,45,0.05)', padding: '12px 16px', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '24px' }}>
+          {errorMsg}
+        </div>
+      )}
+      {successMsg && activeTab !== 'products' && (
+        <div style={{ color: 'var(--accent-lima)', border: 'var(--border-lime)', backgroundColor: 'rgba(200,255,0,0.05)', padding: '12px 16px', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '24px' }}>
+          {successMsg}
+        </div>
+      )}
 
       {/* Tabs */}
       <div style={{
@@ -551,6 +561,78 @@ const Admin = () => {
               </table>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Confirm Delete Custom Modal */}
+      {confirmDeleteId && (
+        <div style={{
+          position: 'fixed',
+          top: 0, right: 0, bottom: 0, left: 0,
+          backgroundColor: 'rgba(10, 10, 10, 0.85)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px'
+        }}>
+          <div style={{
+            backgroundColor: 'var(--bg-card)',
+            border: 'var(--border-brutal)',
+            boxShadow: 'var(--shadow-brutal-lg)',
+            padding: '32px',
+            maxWidth: '400px',
+            width: '100%',
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px'
+          }}>
+            <h3 style={{
+              fontFamily: 'var(--display)',
+              fontSize: '18px',
+              fontWeight: 900,
+              textTransform: 'uppercase',
+              color: 'var(--white)',
+              letterSpacing: '0.05em'
+            }}>
+              ¿Seguro que deseas eliminar este producto?
+            </h3>
+            <p style={{
+              fontFamily: 'var(--sans)',
+              fontSize: '13px',
+              color: 'var(--gray-text-light)',
+              lineHeight: 1.5
+            }}>
+              Esta acción no se puede deshacer y borrará el producto de la base de datos.
+            </p>
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+              <button 
+                onClick={() => setConfirmDeleteId(null)}
+                className="brutal-btn"
+                style={{ flex: 1, backgroundColor: 'transparent', color: 'var(--white)', border: '1px solid var(--gray-mid)' }}
+              >
+                CANCELAR
+              </button>
+              <button 
+                onClick={async () => {
+                  const idToDelete = confirmDeleteId;
+                  setConfirmDeleteId(null);
+                  try {
+                    await deleteProduct(idToDelete);
+                    setSuccessMsg('Producto eliminado correctamente.');
+                    await fetchProducts({ active: null });
+                  } catch (err) {
+                    setErrorMsg(err.message || 'Error al eliminar el producto.');
+                  }
+                }}
+                className="brutal-btn"
+                style={{ flex: 1, backgroundColor: 'var(--accent-red)', color: 'var(--white)', borderColor: 'var(--accent-red)' }}
+              >
+                ELIMINAR
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

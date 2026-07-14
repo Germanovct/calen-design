@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
+  // Obtener todos los talles disponibles para este producto
   const availableSizes = Array.from(new Set(
     product.variants
       ?.filter(v => v.stock > 0)
@@ -9,165 +10,148 @@ const ProductCard = ({ product }) => {
       .filter(Boolean)
   ));
 
-  const defaultImage = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop';
+  // Imagen por defecto si no tiene ninguna cargada
+  const defaultImage = 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800';
   const imageUrl = product.images && product.images.length > 0 ? product.images[0] : defaultImage;
 
   return (
-    <div
-      className="product-card"
+    <div 
+      className="product-card" 
       style={{
-        backgroundColor: '#1A1A1A',
-        border: 'none',
+        backgroundColor: 'var(--bg-card)',
+        borderRadius: '0px',
+        border: 'var(--border-brutal)',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative',
-        transition: 'all 0.2s ease-in-out',
+        height: '100%',
+        transition: 'var(--transition)',
+        position: 'relative'
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.zIndex = '2';
-        e.currentTarget.style.outline = '1px solid #FFFFFF';
+        e.currentTarget.style.transform = 'translate(-2px, -2px)';
+        e.currentTarget.style.boxShadow = 'var(--shadow-brutal)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.zIndex = '1';
-        e.currentTarget.style.outline = 'none';
+        e.currentTarget.style.transform = 'none';
+        e.currentTarget.style.boxShadow = 'none';
       }}
     >
-      {/* Imagen — grayscale → color en hover */}
-      <Link
-        to={`/productos/${product.id}`}
-        style={{
-          display: 'block',
-          position: 'relative',
-          overflow: 'hidden',
-          backgroundColor: '#111111',
+      <Link 
+        to={`/productos/${product.id}`} 
+        style={{ 
+          display: 'block', 
+          position: 'relative', 
+          overflow: 'hidden', 
+          borderBottom: 'var(--border-brutal-sm)',
+          backgroundColor: 'var(--base-dark)'
         }}
       >
         <img
           src={imageUrl}
           alt={product.name}
           className="product-card-img"
+          loading="lazy"
           style={{
             width: '100%',
-            aspectRatio: '3 / 4',
+            aspectRatio: '1 / 1',
             objectFit: 'cover',
-            display: 'block',
+            display: 'block'
           }}
         />
-
-        {/* Overlay sutil */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'linear-gradient(to top, rgba(10,10,10,0.6) 0%, transparent 50%)',
-          zIndex: 1,
-          pointerEvents: 'none',
-        }} />
-
-        {/* Número editorial */}
-        <span style={{
-          position: 'absolute',
-          top: '12px',
-          left: '12px',
-          zIndex: 2,
-          fontFamily: "'Space Grotesk', sans-serif",
-          fontSize: '10px',
-          fontWeight: 700,
-          letterSpacing: '0.2em',
-          color: 'rgba(255,255,255,0.4)',
-        }}>
-          —
-        </span>
-
         {!product.active && (
-          <div style={{
+          <div className="badge" style={{
             position: 'absolute',
             top: '12px',
             right: '12px',
-            zIndex: 3,
-            backgroundColor: '#0A0A0A',
-            color: '#FF2D2D',
+            backgroundColor: 'var(--base-dark)',
+            color: 'var(--accent-red)',
             fontSize: '10px',
             padding: '4px 8px',
-            fontWeight: 900,
+            fontWeight: '900',
             textTransform: 'uppercase',
-            fontFamily: "'Space Grotesk', sans-serif",
-            border: '1px solid #FF2D2D',
-            letterSpacing: '0.1em',
+            border: '1px solid var(--accent-red)'
           }}>
             INACTIVO
           </div>
         )}
       </Link>
 
-      {/* Info del producto */}
       <div style={{
         padding: '16px',
         display: 'flex',
         flexDirection: 'column',
         flexGrow: 1,
-        borderTop: '1px solid #222',
+        backgroundColor: 'var(--bg-card)'
       }}>
         <h3 style={{
-          fontSize: '14px',
-          fontWeight: 900,
-          marginBottom: '6px',
-          fontFamily: "'Space Grotesk', sans-serif",
-          textTransform: 'uppercase',
-          letterSpacing: '0.06em',
-          color: '#FFFFFF',
-          lineHeight: 1.2,
-        }}>
-          <Link to={`/productos/${product.id}`} style={{ color: '#FFFFFF' }}>
-            {product.name}
-          </Link>
-        </h3>
-
-        <p style={{
           fontSize: '18px',
-          fontWeight: 900,
-          fontFamily: "'Space Grotesk', sans-serif",
-          color: '#FF2D2D',
-          marginBottom: '14px',
-          letterSpacing: '0.02em',
+          fontWeight: '900',
+          marginBottom: '8px',
+          fontFamily: 'var(--display)',
+          textTransform: 'uppercase',
+          letterSpacing: '0.05em'
+        }}>
+          <Link to={`/productos/${product.id}`} style={{ color: 'var(--white)' }}>{product.name}</Link>
+        </h3>
+        
+        <p style={{
+          fontSize: '20px',
+          fontWeight: '900',
+          fontFamily: 'var(--display)',
+          color: 'var(--accent-red)',
+          marginBottom: '16px'
         }}>
           ${parseFloat(product.price).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </p>
 
-        {/* Talles */}
         {availableSizes.length > 0 ? (
-          <div style={{ marginTop: 'auto', display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-            {availableSizes.map(size => (
-              <span
-                key={size}
-                style={{
-                  fontSize: '10px',
-                  padding: '3px 7px',
-                  border: '1px solid #333',
-                  backgroundColor: 'transparent',
-                  color: '#666',
-                  fontWeight: 700,
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                }}
-              >
-                {size}
-              </span>
-            ))}
+          <div style={{ marginTop: 'auto' }}>
+            <span style={{ 
+              fontSize: '11px', 
+              fontWeight: '800', 
+              fontFamily: 'var(--display)', 
+              textTransform: 'uppercase', 
+              letterSpacing: '0.05em', 
+              display: 'block', 
+              marginBottom: '8px',
+              color: 'var(--gray-text)'
+            }}>
+              TALLES DISPONIBLES
+            </span>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {availableSizes.map(size => (
+                <span 
+                  key={size} 
+                  style={{
+                    fontSize: '11px',
+                    padding: '4px 8px',
+                    border: '1px solid var(--white)',
+                    borderRadius: '0px',
+                    backgroundColor: 'var(--base-dark)',
+                    color: 'var(--white)',
+                    fontWeight: '900',
+                    fontFamily: 'var(--display)'
+                  }}
+                >
+                  {size}
+                </span>
+              ))}
+            </div>
           </div>
         ) : (
           <div style={{ marginTop: 'auto' }}>
             <span style={{
-              fontSize: '10px',
-              fontFamily: "'Space Grotesk', sans-serif",
-              color: '#FF2D2D',
+              fontSize: '11px',
+              fontFamily: 'var(--display)',
+              color: 'var(--accent-red)',
               textTransform: 'uppercase',
-              letterSpacing: '0.1em',
-              fontWeight: 700,
-              border: '1px solid #FF2D2D',
-              padding: '3px 8px',
+              letterSpacing: '0.05em',
+              fontWeight: '900',
+              border: '1px solid var(--accent-red)',
+              padding: '4px 8px',
               display: 'inline-block',
+              backgroundColor: 'var(--base-dark)'
             }}>
               AGOTADO
             </span>
