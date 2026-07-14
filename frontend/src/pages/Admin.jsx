@@ -9,7 +9,7 @@ const Admin = () => {
   const { user, users, loadingUsers, fetchUsers } = useAuth();
   const { 
     products, categories, fetchProducts, fetchCategories, 
-    createProduct, deleteProduct, uploadImage, updateVariant
+    createProduct, updateProduct, deleteProduct, uploadImage, updateVariant
   } = useProducts();
   const { 
     orders, fetchOrders, updateOrderStatus, addShippingInfo,
@@ -18,6 +18,10 @@ const Admin = () => {
 
   // Tab: 'dashboard' | 'products' | 'orders' | 'stock' | 'users'
   const [activeTab, setActiveTab] = useState('dashboard');
+
+  // Product editing state
+  const [isEditing, setIsEditing] = useState(false);
+  const [editProductId, setEditProductId] = useState(null);
   const [loadingData, setLoadingData] = useState(true);
 
   // Form states for creating product
@@ -89,7 +93,7 @@ const Admin = () => {
   });
   const lowStockCount = allVariants.filter(v => v.stock < 5).length;
 
-  // CREAR PRODUCTO
+  // CREAR O EDITAR PRODUCTO
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
@@ -100,25 +104,62 @@ const Admin = () => {
         return;
       }
       
-      const created = await createProduct({
-        ...newProduct,
-        price: parseFloat(newProduct.price)
-      });
+      if (isEditing) {
+        // Modo Edición
+        await updateProduct(editProductId, {
+          ...newProduct,
+          price: parseFloat(newProduct.price)
+        });
 
-      // Subir imagen si se seleccionó una
-      if (imageFile && created.id) {
-        await uploadImage(created.id, imageFile);
+        // Subir imagen si se seleccionó una
+        if (imageFile) {
+          await uploadImage(editProductId, imageFile);
+        }
+
+        setSuccessMsg('Producto modificado con éxito!');
+        cancelEditProduct();
+      } else {
+        // Modo Creación
+        const created = await createProduct({
+          ...newProduct,
+          price: parseFloat(newProduct.price)
+        });
+
+        // Subir imagen si se seleccionó una
+        if (imageFile && created.id) {
+          await uploadImage(created.id, imageFile);
+        }
+
+        setSuccessMsg('Producto creado con éxito!');
+        setNewProduct({ name: '', description: '', category_id: '', price: '', active: true });
+        setImageFile(null);
       }
-
-      setSuccessMsg('Producto creado con éxito!');
-      setNewProduct({ name: '', description: '', category_id: '', price: '', active: true });
-      setImageFile(null);
       
       // Recargar catálogo
       await fetchProducts({ active: null });
     } catch (err) {
-      setErrorMsg(err.message || 'Error al crear producto');
+      setErrorMsg(err.message || 'Error al procesar el producto');
     }
+  };
+
+  const startEditProduct = (p) => {
+    setIsEditing(true);
+    setEditProductId(p.id);
+    setNewProduct({
+      name: p.name,
+      price: p.price.toString(),
+      category_id: p.category_id,
+      description: p.description || '',
+      active: p.active ?? true
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEditProduct = () => {
+    setIsEditing(false);
+    setEditProductId(null);
+    setNewProduct({ name: '', description: '', category_id: '', price: '', active: true });
+    setImageFile(null);
   };
 
   const handleProductDelete = (id) => {
@@ -287,7 +328,7 @@ const Admin = () => {
           gap: '40px',
           alignItems: 'flex-start'
         }}>
-          {/* Form to create */}
+          {/* Form to create / edit */}
           <div style={{
             flex: '1 1 300px',
             backgroundColor: '#111',
@@ -297,7 +338,9 @@ const Admin = () => {
             boxShadow: 'var(--shadow-brutal-lg)',
             color: '#FFFFFF'
           }}>
-            <h2 style={{ fontSize: '24px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', marginBottom: '24px', borderBottom: '1px solid #333', paddingBottom: '12px', color: '#FFFFFF' }}>Nuevo Producto</h2>
+            <h2 style={{ fontSize: '24px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', marginBottom: '24px', borderBottom: '1px solid #333', paddingBottom: '12px', color: '#FFFFFF' }}>
+              {isEditing ? 'Editar Producto' : 'Nuevo Producto'}
+            </h2>
             {errorMsg && <div style={{ color: 'var(--accent-red)', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '12px' }}>{errorMsg}</div>}
             {successMsg && <div style={{ color: 'var(--accent-lima)', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '12px' }}>{successMsg}</div>}
             
@@ -322,13 +365,27 @@ const Admin = () => {
                 <textarea value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} className="brutal-input" style={{ height: '80px', backgroundColor: '#1A1A1A', color: '#FFFFFF', border: '1px solid #333' }} />
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '11px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', color: 'var(--gray-text)', letterSpacing: '0.18em' }}>Imagen Principal</label>
+                <label style={{ fontSize: '11px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', color: 'var(--gray-text)', letterSpacing: '0.18em' }}>
+                  {isEditing ? 'Reemplazar Imagen Principal' : 'Imagen Principal'}
+                </label>
                 <input type="file" accept="image/*" onChange={e => setImageFile(e.target.files[0])} style={{ fontSize: '13px', border: '1px solid #333', padding: '10px', fontWeight: '700', backgroundColor: '#1A1A1A', color: '#FFFFFF' }} />
               </div>
               
-              <button type="submit" className="brutal-btn brutal-btn-lime" style={{ marginTop: '12px' }}>
-                Crear Producto
-              </button>
+              <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
+                <button type="submit" className="brutal-btn brutal-btn-lime" style={{ flex: 1 }}>
+                  {isEditing ? 'Guardar' : 'Crear Producto'}
+                </button>
+                {isEditing && (
+                  <button 
+                    type="button" 
+                    onClick={cancelEditProduct} 
+                    className="brutal-btn" 
+                    style={{ flex: 1, backgroundColor: 'transparent', color: 'var(--white)', border: '1px solid var(--gray-mid)' }}
+                  >
+                    Cancelar
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
@@ -363,8 +420,17 @@ const Admin = () => {
                         <td style={{ padding: '14px 16px' }}>{cat ? cat.name : 'Sin Cat.'}</td>
                         <td style={{ padding: '14px 16px', fontWeight: '900', fontFamily: 'var(--display)' }}>${p.price}</td>
                         <td style={{ padding: '14px 16px' }}>{p.active ? 'Activo' : 'Inactivo'}</td>
-                        <td style={{ padding: '14px 16px' }}>
-                          <button onClick={() => handleProductDelete(p.id)} style={{ color: 'var(--accent-red)', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', textDecoration: 'underline', fontSize: '13px', background: 'none', border: 'none', cursor: 'pointer' }}>
+                        <td style={{ padding: '14px 16px', display: 'flex', gap: '12px' }}>
+                          <button 
+                            onClick={() => startEditProduct(p)} 
+                            style={{ color: 'var(--accent-lima)', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', textDecoration: 'underline', fontSize: '13px', background: 'none', border: 'none', cursor: 'pointer' }}
+                          >
+                            Editar
+                          </button>
+                          <button 
+                            onClick={() => handleProductDelete(p.id)} 
+                            style={{ color: 'var(--accent-red)', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', textDecoration: 'underline', fontSize: '13px', background: 'none', border: 'none', cursor: 'pointer' }}
+                          >
                             Eliminar
                           </button>
                         </td>
