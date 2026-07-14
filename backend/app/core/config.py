@@ -12,6 +12,11 @@ class Settings:
     RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
     EMAIL_FROM: str = os.getenv("EMAIL_FROM", "Calen Design <onboarding@resend.dev>")
     
+    # Uber Direct API config
+    UBER_CLIENT_ID: str = os.getenv("UBER_CLIENT_ID", "")
+    UBER_CLIENT_SECRET: str = os.getenv("UBER_CLIENT_SECRET", "")
+    UBER_CUSTOMER_ID: str = os.getenv("UBER_CUSTOMER_ID", "")
+    
     # Correo Argentino API config
     CORREO_ARGENTINO_URL: str = os.getenv("CORREO_ARGENTINO_URL", "https://apitest.correoargentino.com.ar/micorreo/v1")
     CORREO_ARGENTINO_USER: str = os.getenv("CORREO_ARGENTINO_USER", "")

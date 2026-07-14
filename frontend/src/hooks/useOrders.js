@@ -123,5 +123,33 @@ export const useOrders = create((set) => ({
       set({ error: msg, loading: false });
       throw new Error(msg);
     }
+  },
+
+  generateCorreoArgentinoLabel: async (orderId) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await api.post(`/api/shipping/orders/${orderId}/shipping/label`, {
+        carrier: "Correo Argentino"
+      });
+      set({ loading: false });
+      return res.data;
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Error al generar etiqueta de Correo Argentino';
+      set({ error: msg, loading: false });
+      throw new Error(msg);
+    }
+  },
+
+  dispatchWithUberDirect: async (orderId) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await api.post(`/api/shipping/orders/${orderId}/shipping/uber`);
+      set({ loading: false });
+      return res.data;
+    } catch (err) {
+      const msg = err.response?.data?.detail || 'Error al despachar con Uber Direct';
+      set({ error: msg, loading: false });
+      throw new Error(msg);
+    }
   }
 }));

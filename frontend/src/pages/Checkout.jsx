@@ -28,6 +28,59 @@ const Checkout = () => {
   const [formError, setFormError] = useState('');
   const [shippingCost, setShippingCost] = useState(0);
 
+  // Dynamic Shipping options state
+  const [shippingOptions, setShippingOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [loadingQuotes, setLoadingQuotes] = useState(false);
+
+  const fetchQuotes = async (zipCode) => {
+    setLoadingQuotes(true);
+    setFormError('');
+    try {
+      // Estimar peso total (ej. 350gr por prenda)
+      const totalWeight = items.reduce((acc, item) => acc + (item.quantity * 350), 0);
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/shipping/quote`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          cp_destino: zipCode,
+          peso_gr: totalWeight || 500,
+          largo_cm: 20,
+          ancho_cm: 15,
+          alto_cm: 10
+        })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setShippingOptions(data);
+        if (data.length > 0) {
+          setSelectedOption(data[0]);
+          setShippingCost(data[0].precio);
+        }
+      } else {
+        throw new Error('Fallo al obtener cotizaciones.');
+      }
+    } catch (err) {
+      console.error(err);
+      // Fallback local realista si se cae el servidor o no hay red
+      const zip = parseInt(zipCode) || 2000;
+      const fallbackOptions = [
+        { modalidad: "Encomienda Clásica", precio: zip >= 1000 && zip <= 1999 ? 2500 : 3800, dias_estimados: 5 },
+        { modalidad: "Encomienda Prioridad", precio: zip >= 1000 && zip <= 1999 ? 4200 : 5600, dias_estimados: 2 }
+      ];
+      if (zip >= 1000 && zip <= 1899) {
+        fallbackOptions.push({ modalidad: "Envío Express Same-Day", precio: 2900, dias_estimados: 0 });
+      }
+      setShippingOptions(fallbackOptions);
+      setSelectedOption(fallbackOptions[0]);
+      setShippingCost(fallbackOptions[0].precio);
+    } finally {
+      setLoadingQuotes(false);
+    }
+  };
+
   if (!user) {
     return (
       <div className="container" style={{ padding: '80px 24px', textAlign: 'center', backgroundColor: 'var(--base-dark)' }}>
@@ -63,7 +116,7 @@ const Checkout = () => {
     });
   };
 
-  const handleStep1Submit = (e) => {
+  const handleStep1Submit = async (e) => {
     e.preventDefault();
     const { fullName, email, address, city, zipCode, phone } = shippingForm;
     if (!fullName || !email || !address || !city || !zipCode || !phone) {
@@ -72,12 +125,14 @@ const Checkout = () => {
     }
     setFormError('');
 
-    // Cotización de envío simplificada según Código Postal
-    const zip = parseInt(zipCode);
-    if (zip >= 1000 && zip <= 1999) {
-      setShippingCost(1500); // Envío CABA/GBA
-    } else {
-      setShippingCost(3000); // Envío resto del país
+    if (shippingOptions.length === 0) {
+      await fetchQuotes(zipCode);
+      return;
+    }
+
+    if (!selectedOption) {
+      setFormError('Por favor selecciona una opción de envío.');
+      return;
     }
 
     setStep(2);
@@ -93,7 +148,8 @@ const Checkout = () => {
         city: shippingForm.city,
         zip_code: shippingForm.zipCode,
         phone: shippingForm.phone,
-        shipping_cost: shippingCost
+        shipping_cost: shippingCost,
+        shipping_method: selectedOption?.modalidad || 'Encomienda Clásica'
       };
 
       const order = await createOrder(shippingAddressJson, items);
@@ -183,8 +239,64 @@ const Checkout = () => {
             </div>
           </div>
 
-          <button type="submit" className="brutal-btn" style={{ marginTop: '16px', alignSelf: 'flex-end', backgroundColor: 'var(--accent-lima)', color: 'var(--black)' }}>
-            Continuar al Resumen
+          {loadingQuotes && (
+            <div style={{ color: 'var(--accent-lima)', fontFamily: 'var(--display)', fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', margin: '12px 0' }}>
+              Cotizando Opciones de Envío...
+            </div>
+          )}
+
+          {shippingOptions.length > 0 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
+              <h3 style={{ fontSize: '13px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', color: 'var(--white)', letterSpacing: '0.1em' }}>
+                Selecciona la opción de envío:
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {shippingOptions.map((opt) => (
+                  <label 
+                    key={opt.modalidad} 
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '16px',
+                      border: '1px solid var(--gray-mid)',
+                      cursor: 'pointer',
+                      backgroundColor: selectedOption?.modalidad === opt.modalidad ? 'rgba(200, 255, 0, 0.05)' : 'transparent',
+                      borderColor: selectedOption?.modalidad === opt.modalidad ? 'var(--accent-lima)' : 'var(--gray-mid)',
+                      transition: 'var(--transition)'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <input 
+                        type="radio" 
+                        name="shipping_option"
+                        checked={selectedOption?.modalidad === opt.modalidad}
+                        onChange={() => {
+                          setSelectedOption(opt);
+                          setShippingCost(opt.precio);
+                        }}
+                        style={{ accentColor: 'var(--accent-lima)', width: '16px', height: '16px' }}
+                      />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                        <span style={{ fontSize: '13px', color: 'var(--white)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          {opt.modalidad}
+                        </span>
+                        <span style={{ fontSize: '11px', color: 'var(--gray-text-light)', textTransform: 'uppercase' }}>
+                          {opt.dias_estimados === 0 ? 'Entrega en el día (Horas)' : `Llega en ${opt.dias_estimados} días hábiles`}
+                        </span>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: '14px', fontWeight: '900', color: 'var(--white)', fontFamily: 'var(--display)' }}>
+                      ${opt.precio.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <button type="submit" className="brutal-btn" style={{ marginTop: '16px', alignSelf: 'flex-end', backgroundColor: 'var(--accent-lima)', color: 'var(--base-dark)' }}>
+            {shippingOptions.length === 0 ? 'Calcular Envío' : 'Continuar al Resumen'}
           </button>
         </form>
       )}
@@ -221,8 +333,11 @@ const Checkout = () => {
           <div>
             <h3 style={{ fontSize: '11px', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.18em', marginBottom: '8px', color: 'var(--gray-text)' }}>Datos de Envío</h3>
             <p style={{ fontSize: '16px', fontWeight: '800', color: 'var(--white)' }}><strong>{shippingForm.fullName}</strong></p>
-            <p style={{ fontSize: '14px', color: 'var(--gray-text-light)', fontWeight: '600', marginTop: '4px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--gray-text)', marginTop: '4px', lineHeight: '1.5' }}>
               {shippingForm.address}, {shippingForm.city} (CP: {shippingForm.zipCode}) · Tel: {shippingForm.phone}
+            </p>
+            <p style={{ fontSize: '13px', color: 'var(--accent-lima)', fontWeight: '900', marginTop: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              Método: {selectedOption?.modalidad || 'Encomienda Clásica'}
             </p>
           </div>
 

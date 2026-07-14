@@ -11,7 +11,10 @@ const Admin = () => {
     products, categories, fetchProducts, fetchCategories, 
     createProduct, deleteProduct, uploadImage, updateVariant
   } = useProducts();
-  const { orders, fetchOrders, updateOrderStatus, addShippingInfo } = useOrders();
+  const { 
+    orders, fetchOrders, updateOrderStatus, addShippingInfo,
+    generateCorreoArgentinoLabel, dispatchWithUberDirect 
+  } = useOrders();
 
   // Tab: 'dashboard' | 'products' | 'orders' | 'stock' | 'users'
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -438,20 +441,73 @@ const Admin = () => {
                   {orders.map(o => (
                     <tr key={o.id} style={{ borderBottom: '1px solid #222', fontWeight: '700', color: '#FFFFFF' }}>
                       <td style={{ padding: '14px 16px' }}>{o.id.slice(-8).toUpperCase()}</td>
-                      <td style={{ padding: '14px 16px' }}>{o.shipping_address?.name || 'Invitado'}</td>
+                      <td style={{ padding: '14px 16px' }}>
+                        <div>{o.shipping_address?.name || 'Invitado'}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--gray-text-light)', marginTop: '4px', textTransform: 'uppercase', fontWeight: '800', letterSpacing: '0.05em' }}>
+                          {o.shipping_address?.shipping_method || 'Envío Clásico'}
+                        </div>
+                      </td>
                       <td style={{ padding: '14px 16px' }}>
                         <span className={`badge badge-${o.status}`} style={{ fontSize: '10px' }}>{o.status}</span>
                       </td>
                       <td style={{ padding: '14px 16px', fontWeight: '900', fontFamily: 'var(--display)' }}>${parseFloat(o.total).toLocaleString('es-AR')}</td>
                       <td style={{ padding: '14px 16px' }}>
                         {o.status === 'approved' && (
-                          <button onClick={() => updateOrderStatus(o.id, 'delivered')} style={{ color: 'var(--accent-lima)', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', textDecoration: 'underline', fontSize: '13px', background: 'none', border: 'none', cursor: 'pointer' }}>
-                            Marcar Entregado
-                          </button>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {o.shipping_address?.shipping_method?.toLowerCase().includes('uber') || o.shipping_address?.shipping_method?.toLowerCase().includes('express') ? (
+                              <button 
+                                onClick={async () => {
+                                  setErrorMsg('');
+                                  setSuccessMsg('');
+                                  try {
+                                    await dispatchWithUberDirect(o.id);
+                                    setSuccessMsg(`Pedido ${o.id.slice(-8).toUpperCase()} despachado con Uber Direct.`);
+                                    fetchOrders();
+                                  } catch (err) {
+                                    setErrorMsg(err.message || 'Error al despachar con Uber.');
+                                  }
+                                }} 
+                                style={{ color: 'var(--accent-lima)', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', textDecoration: 'underline', fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                              >
+                                Despachar Uber
+                              </button>
+                            ) : (
+                              <button 
+                                onClick={async () => {
+                                  setErrorMsg('');
+                                  setSuccessMsg('');
+                                  try {
+                                    const label = await generateCorreoArgentinoLabel(o.id);
+                                    setSuccessMsg(`Etiqueta CA generada: ${label.tracking_number}`);
+                                    fetchOrders();
+                                  } catch (err) {
+                                    setErrorMsg(err.message || 'Error al generar etiqueta CA.');
+                                  }
+                                }} 
+                                style={{ color: 'var(--accent-lima)', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', textDecoration: 'underline', fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                              >
+                                Generar Etiqueta CA
+                              </button>
+                            )}
+                            <button 
+                              onClick={() => updateOrderStatus(o.id, 'delivered')} 
+                              style={{ color: 'var(--white)', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', textDecoration: 'underline', fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                            >
+                              Marcar Entregado
+                            </button>
+                          </div>
                         )}
                         {o.status === 'pending' && (
                           <button onClick={() => updateOrderStatus(o.id, 'cancelled')} style={{ color: 'var(--accent-red)', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', textDecoration: 'underline', fontSize: '13px', background: 'none', border: 'none', cursor: 'pointer' }}>
                             Cancelar
+                          </button>
+                        )}
+                        {o.status === 'shipped' && (
+                          <button 
+                            onClick={() => updateOrderStatus(o.id, 'delivered')} 
+                            style={{ color: 'var(--accent-lima)', fontFamily: 'var(--display)', fontWeight: '900', textTransform: 'uppercase', textDecoration: 'underline', fontSize: '12px', background: 'none', border: 'none', cursor: 'pointer' }}
+                          >
+                            Entregado
                           </button>
                         )}
                       </td>

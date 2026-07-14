@@ -18,6 +18,73 @@ from app.core.dependencies import require_admin, get_current_user
 from app.core.config import settings
 from supabase import Client
 
+import json
+from app.core.email import (
+    send_transactional_email,
+    fetch_order_details_for_email,
+    get_order_shipped_template
+)
+
+# Helper functions for Uber Direct
+def is_caba_gba(cp_destino: str) -> bool:
+    try:
+        cp = int(cp_destino)
+        return 1000 <= cp <= 1899
+    except ValueError:
+        return False
+
+async def get_uber_token() -> Optional[str]:
+    if not settings.UBER_CLIENT_ID or not settings.UBER_CLIENT_SECRET:
+        return None
+    try:
+        payload = {
+            "client_id": settings.UBER_CLIENT_ID,
+            "client_secret": settings.UBER_CLIENT_SECRET,
+            "grant_type": "client_credentials",
+            "scope": "delivery"
+        }
+        async with httpx.AsyncClient() as client:
+            res = await client.post("https://login.uber.com/oauth/v2/token", data=payload)
+            if res.status_code == 200:
+                return res.json().get("access_token")
+    except Exception as e:
+        print(f"[!] Error al obtener OAuth token de Uber: {e}")
+    return None
+
+async def get_uber_quote_value(cp_destino: str, token: str) -> Optional[float]:
+    if not settings.UBER_CUSTOMER_ID:
+        return None
+    try:
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "pickup_address": json.dumps({
+                "street_address": ["Av. Santa Fe 3400"],
+                "city": "CABA",
+                "state": "Buenos Aires",
+                "zip_code": settings.CP_ORIGEN,
+                "country": "AR"
+            }),
+            "dropoff_address": json.dumps({
+                "street_address": ["Calle Falsa 123"],
+                "city": "CABA",
+                "state": "Buenos Aires",
+                "zip_code": cp_destino,
+                "country": "AR"
+            })
+        }
+        url = f"https://api.uber.com/v1/customers/{settings.UBER_CUSTOMER_ID}/delivery_quotes"
+        async with httpx.AsyncClient() as client:
+            res = await client.post(url, json=payload, headers=headers)
+            if res.status_code == 200:
+                quote_res = res.json()
+                return float(quote_res.get("fee", 280000)) / 100.0
+    except Exception as e:
+        print(f"[!] Error al cotizar con Uber Direct: {e}")
+    return None
+
 router = APIRouter()
 
 # Helper para autenticarse y obtener el token de Correo Argentino
@@ -60,102 +127,104 @@ async def get_shipping_quote(
     quote_data: ShippingQuoteRequest,
     db: Client = Depends(get_db)
 ):
-    # Intentar obtener el token de Correo Argentino
+    quotes = []
+
+    # --- 1. Obtener cotización de Correo Argentino ---
     token = await get_correo_argentino_token()
-    
-    # 1. Fallback Mock si no hay credenciales (o en desarrollo local)
     if not token:
+        # Fallback Mock
         try:
             cp_dest = int(quote_data.cp_destino)
         except ValueError:
             cp_dest = 2000
-            
         cp_orig = int(settings.CP_ORIGEN)
         distance_factor = abs(cp_dest - cp_orig)
-        
         base_classic = 2500.0
         base_priority = 4200.0
-        
-        weight_extra = (quote_data.peso_gr / 1000.0) * 450.0 # $450 por kg
+        weight_extra = (quote_data.peso_gr / 1000.0) * 450.0
         distance_extra = min(distance_factor * 0.5, 3000.0)
         
         precio_clasico = round(base_classic + weight_extra + distance_extra, 2)
         precio_prioridad = round(base_priority + (weight_extra * 1.2) + (distance_extra * 1.5), 2)
         
-        return [
-            ShippingQuoteResponse(
-                modalidad="Encomienda Clásica",
-                precio=precio_clasico,
-                dias_estimados=3 if distance_factor < 500 else (5 if distance_factor < 2000 else 7)
-            ),
-            ShippingQuoteResponse(
-                modalidad="Encomienda Prioridad",
-                precio=precio_prioridad,
-                dias_estimados=1 if distance_factor < 500 else (2 if distance_factor < 2000 else 3)
-            )
-        ]
-        
-    # 2. Llamada real a la API de Correo Argentino
-    try:
-        headers = {
-            "Authorization": f"Bearer {token}",
-            "Content-Type": "application/json"
-        }
-        
-        payload = {
-            "customerId": settings.CORREO_ARGENTINO_CUSTOMER_ID,
-            "postalCodeOrigin": settings.CP_ORIGEN,
-            "postalCodeDestination": quote_data.cp_destino,
-            "dimensions": {
-                "weight": int(quote_data.peso_gr),
-                "height": int(quote_data.alto_cm),
-                "width": int(quote_data.ancho_cm),
-                "length": int(quote_data.largo_cm)
+        quotes.append(ShippingQuoteResponse(
+            modalidad="Encomienda Clásica",
+            precio=precio_clasico,
+            dias_estimados=3 if distance_factor < 500 else (5 if distance_factor < 2000 else 7)
+        ))
+        quotes.append(ShippingQuoteResponse(
+            modalidad="Encomienda Prioridad",
+            precio=precio_prioridad,
+            dias_estimados=1 if distance_factor < 500 else (2 if distance_factor < 2000 else 3)
+        ))
+    else:
+        try:
+            headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
             }
-        }
-        
-        async with httpx.AsyncClient() as client:
-            res = await client.post(
-                f"{settings.CORREO_ARGENTINO_URL}/rates",
-                json=payload,
-                headers=headers,
-                timeout=10.0
-            )
-            
-        if res.status_code == 200:
-            rates_data = res.json().get("rates", [])
-            quotes = []
-            for rate in rates_data:
-                service_name = rate.get("serviceName", "Encomienda")
-                price = float(rate.get("price", 0.0))
-                days = int(rate.get("estimatedDeliveryDays", 5))
-                
-                if "express" in service_name.lower() or "prioridad" in service_name.lower():
-                    modalidad = "Encomienda Prioridad"
-                else:
-                    modalidad = "Encomienda Clásica"
-                    
-                quotes.append(
-                    ShippingQuoteResponse(
+            payload = {
+                "customerId": settings.CORREO_ARGENTINO_CUSTOMER_ID,
+                "postalCodeOrigin": settings.CP_ORIGEN,
+                "postalCodeDestination": quote_data.cp_destino,
+                "dimensions": {
+                    "weight": int(quote_data.peso_gr),
+                    "height": int(quote_data.alto_cm),
+                    "width": int(quote_data.ancho_cm),
+                    "length": int(quote_data.largo_cm)
+                }
+            }
+            async with httpx.AsyncClient() as client:
+                res = await client.post(
+                    f"{settings.CORREO_ARGENTINO_URL}/rates",
+                    json=payload,
+                    headers=headers,
+                    timeout=10.0
+                )
+            if res.status_code == 200:
+                rates_data = res.json().get("rates", [])
+                for rate in rates_data:
+                    service_name = rate.get("serviceName", "Encomienda")
+                    price = float(rate.get("price", 0.0))
+                    days = int(rate.get("estimatedDeliveryDays", 5))
+                    modalidad = "Encomienda Prioridad" if ("express" in service_name.lower() or "prioridad" in service_name.lower()) else "Encomienda Clásica"
+                    quotes.append(ShippingQuoteResponse(
                         modalidad=modalidad,
                         precio=price,
                         dias_estimados=days
-                    )
-                )
+                    ))
+            else:
+                raise ValueError("Correo Argentino rate query failed")
+        except Exception as e:
+            print(f"[!] Error al cotizar real con Correo Argentino: {e}")
+            # Mock fallback
+            quotes.append(ShippingQuoteResponse(modalidad="Encomienda Clásica", precio=3500.0, dias_estimados=5))
+            quotes.append(ShippingQuoteResponse(modalidad="Encomienda Prioridad", precio=5200.0, dias_estimados=2))
+
+    # --- 2. Agregar Uber Direct si aplica (CABA/GBA) ---
+    if is_caba_gba(quote_data.cp_destino):
+        uber_price = None
+        uber_token = await get_uber_token()
+        if uber_token:
+            uber_price = await get_uber_quote_value(quote_data.cp_destino, uber_token)
+        
+        if not uber_price:
+            # Mock fallback
+            try:
+                cp_dest = int(quote_data.cp_destino)
+            except ValueError:
+                cp_dest = 1425
+            cp_orig = int(settings.CP_ORIGEN)
+            distance_factor = abs(cp_dest - cp_orig)
+            uber_price = round(2800.0 + (distance_factor * 2.0), 2)
             
-            if not quotes:
-                raise ValueError("API returned empty rates list")
-            return quotes
-        else:
-            print(f"[!] Error de API Correo Argentino: {res.text}")
-            raise HTTPException(status_code=400, detail="Error al cotizar con Correo Argentino")
-    except Exception as e:
-        print(f"[!] Excepción al cotizar con Correo Argentino: {str(e)}")
-        # Contingencia mock si se cae el endpoint real
-        return [
-            ShippingQuoteResponse(modalidad="Encomienda Clásica", precio=3500.0, dias_estimados=5),
-            ShippingQuoteResponse(modalidad="Encomienda Prioridad", precio=5200.0, dias_estimados=2)
-        ]
+        quotes.append(ShippingQuoteResponse(
+            modalidad="Envío Express Same-Day",
+            precio=uber_price,
+            dias_estimados=0  # 0 indica entrega en el día
+        ))
+
+    return quotes
 
 @router.post("/orders/{id}/shipping/label", response_model=ShippingLabelResponse, status_code=status.HTTP_201_CREATED)
 async def generate_shipping_label(
@@ -439,3 +508,119 @@ def get_shipping_label(
         raise
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al obtener tracking de envío: {str(e)}")
+
+@router.post("/orders/{id}/shipping/uber", response_model=ShippingLabelResponse, status_code=status.HTTP_201_CREATED)
+async def dispatch_with_uber_direct(
+    id: str,
+    background_tasks: BackgroundTasks,
+    admin: dict = Depends(require_admin),
+    db: Client = Depends(get_db)
+):
+    if not db:
+        raise HTTPException(status_code=500, detail="Database client not initialized")
+        
+    try:
+        # 1. Verificar existencia de la orden
+        ord_res = db.table("orders").select("id, status, shipping_address").eq("id", id).execute()
+        if not ord_res.data:
+            raise HTTPException(status_code=404, detail="Orden no encontrada")
+            
+        order = ord_res.data[0]
+        
+        # 2. Intentar llamar a Uber API real
+        token = await get_uber_token()
+        tracking_number = None
+        label_url = None
+        
+        if token and settings.UBER_CUSTOMER_ID:
+            try:
+                headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json"
+                }
+                
+                delivery_payload = {
+                    "pickup_address": json.dumps({
+                        "street_address": ["Av. Santa Fe 3400"],
+                        "city": "CABA",
+                        "state": "Buenos Aires",
+                        "zip_code": settings.CP_ORIGEN,
+                        "country": "AR"
+                    }),
+                    "dropoff_address": json.dumps({
+                        "street_address": [order["shipping_address"].get("address", "Calle Falsa 123")],
+                        "city": order["shipping_address"].get("city", "CABA"),
+                        "state": "Buenos Aires",
+                        "zip_code": order["shipping_address"].get("zip_code", "1425"),
+                        "country": "AR"
+                    }),
+                    "manifest_items": [
+                        {
+                            "name": "Paquete Calen Design",
+                            "quantity": 1
+                        }
+                    ],
+                    "pickup_name": "Calen Design",
+                    "pickup_phone_number": "+541155554444",
+                    "dropoff_name": order["shipping_address"].get("name", "Cliente"),
+                    "dropoff_phone_number": order["shipping_address"].get("phone", "+541155554444")
+                }
+                
+                url = f"https://api.uber.com/v1/customers/{settings.UBER_CUSTOMER_ID}/deliveries"
+                async with httpx.AsyncClient() as client:
+                    res = await client.post(url, json=delivery_payload, headers=headers)
+                    
+                if res.status_code in [200, 201]:
+                    delivery_res = res.json()
+                    tracking_number = delivery_res.get("id")
+                    label_url = delivery_res.get("share_url")
+            except Exception as e:
+                print(f"[!] Error al crear envío real con Uber Direct: {str(e)}")
+                
+        # 3. Fallback Mock si no hay tracking de la API real
+        if not tracking_number:
+            rand_code = "".join(random.choices("0123456789", k=6))
+            tracking_number = f"UBER-{rand_code}"
+            
+        if not label_url:
+            label_url = f"https://www.uber.com/lookup/mock_uber_track_{id}"
+            
+        # 4. Guardar o actualizar en shipping_labels
+        label_check = db.table("shipping_labels").select("*").eq("order_id", id).execute()
+        
+        payload = {
+            "order_id": id,
+            "carrier": "Uber Direct",
+            "tracking_number": tracking_number,
+            "label_url": label_url
+        }
+        
+        if label_check.data:
+            label_id = label_check.data[0]["id"]
+            res = db.table("shipping_labels").update(payload).eq("id", label_id).execute()
+        else:
+            res = db.table("shipping_labels").insert(payload).execute()
+            
+        if not res.data:
+            raise HTTPException(status_code=400, detail="No se pudo guardar la información de envío")
+            
+        # 5. Cambiar orden a "shipped"
+        db.table("orders").update({"status": "shipped"}).eq("id", id).execute()
+        
+        # Enviar email de despacho
+        try:
+            full_order = fetch_order_details_for_email(db, id)
+            if full_order and full_order.get("shipping_address"):
+                to_email = full_order["shipping_address"].get("email")
+                if to_email:
+                    subject = f"Tu pedido ha sido despachado - Pedido #{id[:8].upper()}"
+                    html = get_order_shipped_template(full_order, "Uber Direct", tracking_number)
+                    background_tasks.add_task(send_transactional_email, to_email, subject, html)
+        except Exception as email_err:
+            print(f"[!] Error al encolar email en dispatch_with_uber_direct: {email_err}")
+            
+        return res.data[0]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error al despachar con Uber: {str(e)}")
