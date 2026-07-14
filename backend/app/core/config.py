@@ -10,6 +10,7 @@ class Settings:
     MP_ACCESS_TOKEN: str = os.getenv("MP_ACCESS_TOKEN", "")
     MP_WEBHOOK_SECRET: str = os.getenv("MP_WEBHOOK_SECRET", "")
     RESEND_API_KEY: str = os.getenv("RESEND_API_KEY", "")
+    EMAIL_FROM: str = os.getenv("EMAIL_FROM", "Calen Design <onboarding@resend.dev>")
     
     # Correo Argentino API config
     CORREO_ARGENTINO_URL: str = os.getenv("CORREO_ARGENTINO_URL", "https://apitest.correoargentino.com.ar/micorreo/v1")

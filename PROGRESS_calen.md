@@ -13,16 +13,16 @@
 
 | Módulo | Estado |
 |---|---|
-| Setup inicial | ⬜ Pendiente |
-| Base de datos | ⬜ Pendiente |
-| Backend API | ⬜ Pendiente |
-| Frontend — Tienda | ⬜ Pendiente |
-| Panel Admin | ⬜ Pendiente |
-| Mercado Pago | ⬜ Pendiente |
-| Envíos | ⬜ Pendiente |
-| Emails transaccionales | ⬜ Pendiente |
-| Migración de productos | ⬜ Pendiente |
-| Deploy producción | ⬜ Pendiente |
+| Setup inicial | ✅ Completado |
+| Base de datos | ✅ Completado |
+| Backend API | ✅ Completado |
+| Frontend — Tienda | ✅ Completado |
+| Panel Admin | ✅ Completado |
+| Mercado Pago | ✅ Completado |
+| Envíos | ✅ Completado |
+| Emails transaccionales | ✅ Completado |
+| Migración de productos | ✅ Completado |
+| Deploy producción | ✅ Completado |
 
 ---
 

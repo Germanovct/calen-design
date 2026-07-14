@@ -1,0 +1,6 @@
+Identificador,Nombre,Categorías,Precio,Talle,Color,Stock,Imagen,Descripción
+remera-oversized-test,Remera Oversized Heavyweight Test,Remeras,4900,S,Negro,10,https://calen-products.supabase.co/storage/v1/object/public/products/remera1.jpg,Una remera espectacular de algodon pesado.
+remera-oversized-test,Remera Oversized Heavyweight Test,Remeras,4900,M,Negro,25,,
+remera-oversized-test,Remera Oversized Heavyweight Test,Remeras,4900,L,Negro,15,,
+buzo-editorial-test,Buzo Crop Editorial Test,Buzos,5900,S,Gris,8,https://calen-products.supabase.co/storage/v1/object/public/products/buzo1.jpg,Un buzo crop abrigador.
+buzo-editorial-test,Buzo Crop Editorial Test,Buzos,5900,M,Gris,12,,

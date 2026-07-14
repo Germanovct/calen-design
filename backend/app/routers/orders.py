@@ -1,9 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Response, BackgroundTasks
 from typing import List, Optional
 from app.schemas.orders import OrderCreate, OrderResponse, PaymentPreferenceResponse
 from app.core.database import get_db
 from app.core.dependencies import require_admin, get_current_user
 from app.core.config import settings
+from app.core.email import (
+    send_transactional_email,
+    fetch_order_details_for_email,
+    get_order_created_template,
+    get_payment_approved_template,
+    get_order_delivered_template,
+    get_order_cancelled_template,
+    get_order_shipped_template
+)
 from supabase import Client
 import httpx
 import hmac
@@ -19,6 +28,7 @@ router = APIRouter()
 @router.post("/", response_model=OrderResponse, status_code=status.HTTP_201_CREATED)
 def create_order(
     order_data: OrderCreate, 
+    background_tasks: BackgroundTasks,
     current_user: dict = Depends(get_current_user), 
     db: Client = Depends(get_db)
 ):
@@ -87,6 +97,19 @@ def create_order(
             db.table("variants").update({"stock": item["new_stock"]}).eq("id", item["variant_id"]).execute()
 
         created_order["items"] = created_items
+
+        # Enviar email de confirmación
+        try:
+            full_order = fetch_order_details_for_email(db, order_id)
+            if full_order and full_order.get("shipping_address"):
+                to_email = full_order["shipping_address"].get("email")
+                if to_email:
+                    subject = f"Confirmación de Compra - Pedido #{order_id[:8].upper()}"
+                    html = get_order_created_template(full_order)
+                    background_tasks.add_task(send_transactional_email, to_email, subject, html)
+        except Exception as email_err:
+            print(f"[!] Error al encolar email de confirmación: {email_err}")
+
         return created_order
     except HTTPException:
         raise
@@ -151,6 +174,7 @@ def get_order(
 def update_order_status(
     id: str, 
     status_update: dict, # Ej: {"status": "shipped"}
+    background_tasks: BackgroundTasks,
     admin: dict = Depends(require_admin), 
     db: Client = Depends(get_db)
 ):
@@ -169,7 +193,41 @@ def update_order_status(
             
         # Devolver orden actualizada
         full_res = db.table("orders").select("*, order_items(*)").eq("id", id).execute()
-        return full_res.data[0]
+        updated_order = full_res.data[0]
+
+        # Enviar email correspondiente
+        try:
+            full_order = fetch_order_details_for_email(db, id)
+            if full_order and full_order.get("shipping_address"):
+                to_email = full_order["shipping_address"].get("email")
+                if to_email:
+                    subject = ""
+                    html = ""
+                    if new_status == "approved":
+                        subject = f"Pago Aprobado - Pedido #{id[:8].upper()}"
+                        html = get_payment_approved_template(full_order)
+                    elif new_status == "shipped":
+                        t_res = db.table("shipping_labels").select("*").eq("order_id", id).execute()
+                        carrier = "Correo Argentino"
+                        tracking_number = "CPXXXXXXXXXAR"
+                        if t_res.data:
+                            carrier = t_res.data[0].get("carrier", "Correo Argentino")
+                            tracking_number = t_res.data[0].get("tracking_number", "CPXXXXXXXXXAR")
+                        subject = f"Pedido Despachado - Pedido #{id[:8].upper()}"
+                        html = get_order_shipped_template(full_order, carrier, tracking_number)
+                    elif new_status == "delivered":
+                        subject = f"Pedido Entregado - Pedido #{id[:8].upper()}"
+                        html = get_order_delivered_template(full_order)
+                    elif new_status == "cancelled":
+                        subject = f"Pedido Cancelado - Pedido #{id[:8].upper()}"
+                        html = get_order_cancelled_template(full_order)
+                    
+                    if subject and html:
+                        background_tasks.add_task(send_transactional_email, to_email, subject, html)
+        except Exception as email_err:
+            print(f"[!] Error al encolar email de cambio de estado: {email_err}")
+
+        return updated_order
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error al cambiar estado del pedido: {str(e)}")
 
@@ -285,6 +343,7 @@ async def create_payment_preference(
 @router.post("/webhooks/mp")
 async def mercadopago_webhook(
     request: Request,
+    background_tasks: BackgroundTasks,
     db: Client = Depends(get_db)
 ):
     if not db:
@@ -344,6 +403,19 @@ async def mercadopago_webhook(
             # El cuerpo del test puede enviar el ID de la orden directamente en id
             order_id = resource_id
             db.table("orders").update({"status": "approved"}).eq("id", order_id).execute()
+            
+            # Enviar email
+            try:
+                full_order = fetch_order_details_for_email(db, order_id)
+                if full_order and full_order.get("shipping_address"):
+                    to_email = full_order["shipping_address"].get("email")
+                    if to_email:
+                        subject = f"Pago Aprobado - Pedido #{order_id[:8].upper()}"
+                        html = get_payment_approved_template(full_order)
+                        background_tasks.add_task(send_transactional_email, to_email, subject, html)
+            except Exception as email_err:
+                print(f"[!] Error al encolar email en webhook mock: {email_err}")
+
             return {"status": "processed", "message": "Pago aprobado simulado"}
 
         # Consulta real del estado del pago en Mercado Pago
@@ -370,6 +442,18 @@ async def mercadopago_webhook(
                     }).eq("id", order_id).execute()
                     
                     print(f"[+] Orden {order_id} marcada como APROBADA.")
+
+                    # Enviar email
+                    try:
+                        full_order = fetch_order_details_for_email(db, order_id)
+                        if full_order and full_order.get("shipping_address"):
+                            to_email = full_order["shipping_address"].get("email")
+                            if to_email:
+                                subject = f"Pago Aprobado - Pedido #{order_id[:8].upper()}"
+                                html = get_payment_approved_template(full_order)
+                                background_tasks.add_task(send_transactional_email, to_email, subject, html)
+                    except Exception as email_err:
+                        print(f"[!] Error al encolar email en webhook real: {email_err}")
             else:
                 print(f"[!] Error al consultar pago en MP: {pay_res.text}")
         except Exception as e:

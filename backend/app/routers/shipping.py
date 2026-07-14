@@ -2,7 +2,12 @@ import base64
 import random
 import httpx
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from app.core.email import (
+    send_transactional_email,
+    fetch_order_details_for_email,
+    get_order_shipped_template
+)
 from app.schemas.shipping import (
     ShippingLabelCreate, ShippingLabelResponse,
     ShippingQuoteRequest, ShippingQuoteResponse,
@@ -156,6 +161,7 @@ async def get_shipping_quote(
 async def generate_shipping_label(
     id: str,
     label_data: CreateLabelRequest,
+    background_tasks: BackgroundTasks,
     admin: dict = Depends(require_admin),
     db: Client = Depends(get_db)
 ):
@@ -244,6 +250,18 @@ async def generate_shipping_label(
         # 5. Cambiar orden a "shipped"
         db.table("orders").update({"status": "shipped"}).eq("id", id).execute()
         
+        # Enviar email de confirmación de despacho
+        try:
+            full_order = fetch_order_details_for_email(db, id)
+            if full_order and full_order.get("shipping_address"):
+                to_email = full_order["shipping_address"].get("email")
+                if to_email:
+                    subject = f"Tu pedido ha sido despachado - Pedido #{id[:8].upper()}"
+                    html = get_order_shipped_template(full_order, label_data.carrier, tracking_number)
+                    background_tasks.add_task(send_transactional_email, to_email, subject, html)
+        except Exception as email_err:
+            print(f"[!] Error al encolar email en generate_shipping_label: {email_err}")
+
         return res.data[0]
     except HTTPException:
         raise
@@ -344,6 +362,7 @@ async def get_tracking_status(
 def create_shipping_label(
     id: str, 
     shipping_data: ShippingLabelCreate, 
+    background_tasks: BackgroundTasks,
     admin: dict = Depends(require_admin), 
     db: Client = Depends(get_db)
 ):
@@ -374,6 +393,19 @@ def create_shipping_label(
             raise HTTPException(status_code=400, detail="No se pudo guardar la información de envío")
 
         db.table("orders").update({"status": "shipped"}).eq("id", id).execute()
+
+        # Enviar email de confirmación de despacho (fallback endpoint)
+        try:
+            full_order = fetch_order_details_for_email(db, id)
+            if full_order and full_order.get("shipping_address"):
+                to_email = full_order["shipping_address"].get("email")
+                if to_email:
+                    subject = f"Tu pedido ha sido despachado - Pedido #{id[:8].upper()}"
+                    html = get_order_shipped_template(full_order, shipping_data.carrier, shipping_data.tracking_number)
+                    background_tasks.add_task(send_transactional_email, to_email, subject, html)
+        except Exception as email_err:
+            print(f"[!] Error al encolar email en create_shipping_label fallback: {email_err}")
+
         return res.data[0]
     except HTTPException:
         raise
