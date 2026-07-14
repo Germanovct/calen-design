@@ -18,7 +18,7 @@ class Settings:
     UBER_CUSTOMER_ID: str = os.getenv("UBER_CUSTOMER_ID", "")
     
     # Correo Argentino API config
-    CORREO_ARGENTINO_URL: str = os.getenv("CORREO_ARGENTINO_URL", "https://apitest.correoargentino.com.ar/micorreo/v1")
+    CORREO_ARGENTINO_URL: str = os.getenv("CORREO_ARGENTINO_URL", "https://apitest.correoargentino.com.ar/paqar")
     CORREO_ARGENTINO_USER: str = os.getenv("CORREO_ARGENTINO_USER", "")
     CORREO_ARGENTINO_PASSWORD: str = os.getenv("CORREO_ARGENTINO_PASSWORD", "")
     CORREO_ARGENTINO_CUSTOMER_ID: str = os.getenv("CORREO_ARGENTINO_CUSTOMER_ID", "")

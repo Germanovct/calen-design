@@ -85,38 +85,123 @@ async def get_uber_quote_value(cp_destino: str, token: str) -> Optional[float]:
         print(f"[!] Error al cotizar con Uber Direct: {e}")
     return None
 
-router = APIRouter()
+import re
+import datetime
 
-# Helper para autenticarse y obtener el token de Correo Argentino
-async def get_correo_argentino_token() -> Optional[str]:
-    # Si las credenciales no están configuradas, retornar None
-    if not settings.CORREO_ARGENTINO_USER or not settings.CORREO_ARGENTINO_PASSWORD:
-        return None
+def parse_street_address(address_str: str) -> tuple[str, str, str]:
+    # Intentar separar calle y número. Ej: "Av. Santa Fe 3400 Piso 5B"
+    match = re.search(r'^(.*?)\s+(\d+)\s*(.*?)$', address_str)
+    if match:
+        street = match.group(1).strip()
+        number = match.group(2).strip()
+        floor_dept = match.group(3).strip()
+        return street, number, floor_dept
+    return address_str, "S/N", ""
+
+def resolve_province_code(city_str: str, zip_str: str) -> str:
+    city_clean = city_str.lower().strip()
+    
+    keywords = {
+        "buenos aires": "B",
+        "caba": "C",
+        "capital federal": "C",
+        "ciudad autonoma": "C",
+        "ciudad autónoma": "C",
+        "cordoba": "X",
+        "córdoba": "X",
+        "santa fe": "S",
+        "mendoza": "M",
+        "tucuman": "T",
+        "tucumán": "T",
+        "salta": "A",
+        "jujuy": "Y",
+        "chaco": "H",
+        "formosa": "P",
+        "corrientes": "W",
+        "misiones": "N",
+        "entre rios": "E",
+        "entre ríos": "E",
+        "santiago del estero": "G",
+        "la rioja": "F",
+        "catamarca": "K",
+        "san juan": "J",
+        "san luis": "D",
+        "la pampa": "L",
+        "neuquen": "Q",
+        "neuquén": "Q",
+        "rio negro": "R",
+        "río negro": "R",
+        "chubut": "U",
+        "santa cruz": "Z",
+        "tierra del fuego": "V"
+    }
+    
+    for kw, code in keywords.items():
+        if kw in city_clean:
+            return code
+            
     try:
-        # Codificar en base64 para Basic Auth
-        user_pass = f"{settings.CORREO_ARGENTINO_USER}:{settings.CORREO_ARGENTINO_PASSWORD}"
-        user_pass_bytes = user_pass.encode("utf-8")
-        base64_user_pass = base64.b64encode(user_pass_bytes).decode("utf-8")
+        digits = "".join(filter(str.isdigit, zip_str))
+        if len(digits) >= 4:
+            cp_int = int(digits[:4])
+            if 1000 <= cp_int <= 1499:
+                return "C"
+            elif 1500 <= cp_int <= 1999:
+                return "B"
+            elif 2000 <= cp_int <= 2999:
+                return "B"
+            elif 3000 <= cp_int <= 3499:
+                return "S"
+            elif 3500 <= cp_int <= 3599:
+                return "H"
+            elif 3600 <= cp_int <= 3699:
+                return "P"
+            elif 3700 <= cp_int <= 3799:
+                return "H"
+            elif 4000 <= cp_int <= 4399:
+                return "T"
+            elif 4400 <= cp_int <= 4599:
+                return "A"
+            elif 4600 <= cp_int <= 4699:
+                return "Y"
+            elif 5000 <= cp_int <= 5299:
+                return "X"
+            elif 5400 <= cp_int <= 5499:
+                return "J"
+            elif 5500 <= cp_int <= 5699:
+                return "M"
+            elif 5700 <= cp_int <= 5899:
+                return "D"
+            elif 8000 <= cp_int <= 8199:
+                return "B"
+            elif 8300 <= cp_int <= 8399:
+                return "Q"
+            elif 8400 <= cp_int <= 8499:
+                return "R"
+            elif 9000 <= cp_int <= 9299:
+                return "U"
+            elif 9300 <= cp_int <= 9399:
+                return "Z"
+            elif cp_int >= 9400:
+                return "V"
+    except Exception:
+        pass
         
-        headers = {
-            "Authorization": f"Basic {base64_user_pass}",
-            "Content-Type": "application/json"
-        }
-        
-        async with httpx.AsyncClient() as client:
-            res = await client.post(
-                f"{settings.CORREO_ARGENTINO_URL}/token",
-                headers=headers,
-                timeout=10.0
-            )
-        if res.status_code == 200:
-            return res.json().get("token")
-        else:
-            print(f"[!] Error al obtener token de Correo Argentino: {res.text}")
-            return None
-    except Exception as e:
-        print(f"[!] Excepción al obtener token de Correo Argentino: {str(e)}")
+    return "B"
+
+def get_correo_argentino_headers() -> Optional[dict]:
+    # En API 2.0 (Paqar):
+    # CORREO_ARGENTINO_PASSWORD se usa como el API-Key (Apikey <Key>)
+    # CORREO_ARGENTINO_CUSTOMER_ID se usa como el agreement code
+    if not settings.CORREO_ARGENTINO_PASSWORD or not settings.CORREO_ARGENTINO_CUSTOMER_ID:
         return None
+    return {
+        "Authorization": f"Apikey {settings.CORREO_ARGENTINO_PASSWORD}",
+        "agreement": settings.CORREO_ARGENTINO_CUSTOMER_ID,
+        "Content-Type": "application/json"
+    }
+
+router = APIRouter()
 
 # ==========================================
 # SHIPPING ENDPOINTS
@@ -130,8 +215,8 @@ async def get_shipping_quote(
     quotes = []
 
     # --- 1. Obtener cotización de Correo Argentino ---
-    token = await get_correo_argentino_token()
-    if not token:
+    headers = get_correo_argentino_headers()
+    if not headers:
         # Fallback Mock
         try:
             cp_dest = int(quote_data.cp_destino)
@@ -159,10 +244,6 @@ async def get_shipping_quote(
         ))
     else:
         try:
-            headers = {
-                "Authorization": f"Bearer {token}",
-                "Content-Type": "application/json"
-            }
             payload = {
                 "customerId": settings.CORREO_ARGENTINO_CUSTOMER_ID,
                 "postalCodeOrigin": settings.CP_ORIGEN,
@@ -176,7 +257,7 @@ async def get_shipping_quote(
             }
             async with httpx.AsyncClient() as client:
                 res = await client.post(
-                    f"{settings.CORREO_ARGENTINO_URL}/rates",
+                    f"{settings.CORREO_ARGENTINO_URL}/v1/rates",
                     json=payload,
                     headers=headers,
                     timeout=10.0
@@ -194,9 +275,9 @@ async def get_shipping_quote(
                         dias_estimados=days
                     ))
             else:
-                raise ValueError("Correo Argentino rate query failed")
+                raise ValueError(f"Correo Argentino rates query failed: {res.text}")
         except Exception as e:
-            print(f"[!] Error al cotizar real con Correo Argentino: {e}")
+            print(f"[!] Error al cotizar real con Correo Argentino API 2.0: {e}")
             # Mock fallback
             quotes.append(ShippingQuoteResponse(modalidad="Encomienda Clásica", precio=3500.0, dias_estimados=5))
             quotes.append(ShippingQuoteResponse(modalidad="Encomienda Prioridad", precio=5200.0, dias_estimados=2))
@@ -245,35 +326,90 @@ async def generate_shipping_label(
             
         order = ord_res.data[0]
         
-        # Intentar obtener el token de Correo Argentino
-        token = await get_correo_argentino_token()
+        # Obtener cabeceras de Correo Argentino
+        headers = get_correo_argentino_headers()
         
         tracking_number = label_data.tracking_number
         label_url = None
         
         # 2. Generación Real vs Mock
-        if token and not tracking_number:
+        if headers and not tracking_number:
             try:
-                headers = {
-                    "Authorization": f"Bearer {token}",
-                    "Content-Type": "application/json"
-                }
+                street_name, street_number, floor_dept = parse_street_address(order.get("shipping_address", {}).get("address", ""))
+                
+                selected_method = order.get("shipping_address", {}).get("shipping_method", "")
+                service_type = "CP" if "prioridad" in selected_method.lower() else "CC"
+                
+                sender_province = resolve_province_code("Buenos Aires", settings.CP_ORIGEN)
+                recipient_province = resolve_province_code(
+                    order.get("shipping_address", {}).get("city", ""),
+                    order.get("shipping_address", {}).get("zip_code", "")
+                )
                 
                 import_payload = {
-                    "customerId": settings.CORREO_ARGENTINO_CUSTOMER_ID,
-                    "orders": [
-                        {
-                            "externalReference": id,
-                            "deliveryAddress": order.get("shipping_address", {}),
-                            "weight": 1000,
-                            "dimensions": {"height": 10, "width": 15, "length": 20}
-                        }
-                    ]
+                    "sellerId": "1",
+                    "trackingNumber": "",
+                    "order": {
+                        "senderData": {
+                            "id": "1",
+                            "businessName": "Calen Design",
+                            "areaCodePhone": "11",
+                            "phoneNumber": "55554444",
+                            "areaCodeCellphone": "11",
+                            "cellphoneNumber": "55554444",
+                            "email": "hola@calendesign.com.ar",
+                            "observation": "",
+                            "address": {
+                                "streetName": "Av. Santa Fe",
+                                "streetNumber": "3400",
+                                "cityName": "CABA",
+                                "floor": "",
+                                "department": "",
+                                "state": sender_province,
+                                "zipCode": settings.CP_ORIGEN
+                            }
+                        },
+                        "shippingData": {
+                            "name": order.get("shipping_address", {}).get("name", "Comprador"),
+                            "areaCodePhone": "",
+                            "phoneNumber": "",
+                            "areaCodeCellphone": "",
+                            "cellphoneNumber": order.get("shipping_address", {}).get("phone", ""),
+                            "email": order.get("shipping_address", {}).get("email", ""),
+                            "observation": "",
+                            "address": {
+                                "streetName": street_name,
+                                "streetNumber": street_number,
+                                "cityName": order.get("shipping_address", {}).get("city", ""),
+                                "floor": floor_dept,
+                                "department": "",
+                                "state": recipient_province,
+                                "zipCode": order.get("shipping_address", {}).get("zip_code", "")
+                            }
+                        },
+                        "parcels": [
+                            {
+                                "dimensions": {
+                                    "height": "10",
+                                    "width": "15",
+                                    "depth": "20"
+                                },
+                                "productWeight": "1000",
+                                "productCategory": "Prendas de Vestir",
+                                "declaredValue": str(int(order.get("total", 8000)))
+                            }
+                        ],
+                        "deliveryType": "homeDelivery",
+                        "agencyId": "",
+                        "saleDate": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S-03:00"),
+                        "serviceType": service_type,
+                        "shipmentClientId": ""
+                    }
                 }
                 
                 async with httpx.AsyncClient() as client:
                     res = await client.post(
-                        f"{settings.CORREO_ARGENTINO_URL}/shipping/import",
+                        f"{settings.CORREO_ARGENTINO_URL}/v1/orders",
                         json=import_payload,
                         headers=headers,
                         timeout=10.0
@@ -281,11 +417,34 @@ async def generate_shipping_label(
                     
                 if res.status_code in [200, 201]:
                     import_res = res.json()
-                    shipment = import_res.get("shipments", [{}])[0]
-                    tracking_number = shipment.get("trackingNumber")
-                    label_url = shipment.get("labelUrl")
+                    tracking_number = import_res.get("trackingNumber")
+                    
+                    # Llamar al endpoint v1/labels para obtener el base64 del PDF
+                    label_payload = [
+                        {
+                            "sellerId": settings.CORREO_ARGENTINO_CUSTOMER_ID,
+                            "trackingNumber": tracking_number
+                        }
+                    ]
+                    async with httpx.AsyncClient() as label_client:
+                        label_res = await label_client.post(
+                            f"{settings.CORREO_ARGENTINO_URL}/v1/labels?labelFormat=10x15",
+                            json=label_payload,
+                            headers=headers,
+                            timeout=10.0
+                        )
+                    if label_res.status_code == 200:
+                        label_data_list = label_res.json()
+                        if label_data_list and isinstance(label_data_list, list):
+                            file_b64 = label_data_list[0].get("fileBase64")
+                            if file_b64:
+                                label_url = f"data:application/pdf;base64,{file_b64}"
+                                print(f"[+] Etiqueta PDF obtenida en base64 para TN: {tracking_number}")
+                                
+                    if not label_url:
+                        label_url = f"{settings.CORREO_ARGENTINO_URL}/v1/orders/{tracking_number}/label"
                 else:
-                    print(f"[!] Error al importar envío en Correo Argentino: {res.text}")
+                    print(f"[!] Error al crear orden en Correo Argentino Paqar 2.0: {res.text}")
             except Exception as e:
                 print(f"[!] Excepción al importar envío: {str(e)}")
                 
